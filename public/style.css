@@ -252,3 +252,69 @@ html, body {
   font-family: monospace;
   font-size: 0.95rem;
 }
+
+.startup-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6em;
+  margin-bottom: 1.5em;
+  justify-content: flex-start;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  width: 20vw;
+}
+
+.startup-controls button {
+  min-width: 150px;
+  text-align: center;
+  font-size: 1rem;
+}
+
+/* === Shared Button Styles === */
+button {
+  font-size: 1rem;
+  padding: 0.6em 1.4em;
+  margin: 0.4em 0.6em 0.4em 0;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+button.primary {
+  background: #4a90e2;
+  color: #fff;
+}
+button.primary:hover {
+  background: #5ea2f0;
+  box-shadow: 0 0 8px rgba(74,144,226,0.67);
+}
+
+button.secondary {
+  background: #444;
+  color: #fff;
+}
+button.secondary:hover {
+  background: #5a5a5a;
+  box-shadow: 0 0 6px #777;
+}
+
+button.danger {
+  background: #c0392b;
+  color: #fff;
+}
+button.danger:hover {
+  background: #e74c3c;
+  box-shadow: 0 0 10px rgba(231,76,60,0.53);
+}
+
+/* === Grouped layout for startup/shutdown controls === */
+.startup-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8em;
+  margin-bottom: 2em;
+}

@@ -36,6 +36,17 @@
     <!-- Hardware Control -->
     <div id="hardware" class="tab">
       <h2>Opstarten / Afsluiten</h2>
+      <div class="startup-controls">
+        <button class="primary" onclick="startAll()">Alles aan</button>
+        <button class="danger" onclick="shutdownAll()">Alles uit</button>
+      </div>
+      <div class="startup-controls">
+        <button class="secondary" onclick="wakeComputers()">Computers aan</button>
+        <button class="secondary" onclick="shutdownComputers()">Computers uit</button>
+        <button class="secondary" onclick="turnOnProjectors()">Projectors aan</button>
+        <button class="secondary" onclick="turnOffProjectors()">Projectors uit</button>
+      </div>
+          
       <div class="hardware-panels">
         <div id="computersContainer" class="hardware-panel">
           <h3>Computers</h3>

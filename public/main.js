@@ -7,6 +7,43 @@ let lastTriggeredScene = -1;
 let sceneCooldown = false;
 let isPlaying = true;
 
+function startAll() {
+  wakeComputers();
+  turnOnProjectors();
+}
+
+function shutdownAll() {
+  if (confirm("Weet je zeker dat je alles wilt uitschakelen?")) {
+    shutdownComputers();
+    turnOffProjectors();
+  }
+}
+
+function wakeComputers() {
+  hardware.computers.forEach((comp, index) => {
+    socket.send(JSON.stringify({ type: "executeComputer", index, action: "wake" }));
+  });
+}
+
+function shutdownComputers() {
+  hardware.computers.forEach((comp, index) => {
+    socket.send(JSON.stringify({ type: "executeComputer", index, action: "shutdown" }));
+  });
+}
+
+function turnOnProjectors() {
+  hardware.projectors.forEach((proj, index) => {
+    socket.send(JSON.stringify({ type: "executeProjector", index, action: "on" }));
+  });
+}
+
+function turnOffProjectors() {
+  hardware.projectors.forEach((proj, index) => {
+    socket.send(JSON.stringify({ type: "executeProjector", index, action: "off" }));
+  });
+}
+
+
 // Track feedback times for MM1 & MM2
 let lastFeedbackTimes = { MM1: 0, MM2: 0 };
 
