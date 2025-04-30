@@ -125,15 +125,21 @@ function deleteScene(bankIdx, sceneIdx) {
   renderBanks();
 }
 function renderBanks() {
-  const out = document.getElementById("banks"); out.innerHTML = "";
-  banks.forEach((b,i) => {
+  const out = document.getElementById("banks");
+  out.innerHTML = "";
+
+  banks.forEach((b, i) => {
     const coll = document.createElement("div");
     coll.className = "collapsible";
     coll.innerHTML = `${b.name || 'Unnamed Bank'} <span>▼</span>`;
-    coll.onclick = function() {
+
+    // Keep reference to toggle open status
+    let isOpen = false;
+    coll.onclick = function () {
+      isOpen = !isOpen;
       this.classList.toggle("active");
       const content = this.nextElementSibling;
-      content.style.maxHeight = content.style.maxHeight ? null : content.scrollHeight + "px";
+      content.style.maxHeight = isOpen ? content.scrollHeight + "px" : null;
     };
 
     const content = document.createElement("div");
@@ -154,7 +160,15 @@ function renderBanks() {
       b.background = v ? (v.startsWith("http") || v.includes("/") ? v : `/images/${v}`) : "";
     });
 
+    const oscText = document.createElement("div");
+    oscText.style.color = "#aaa";
+    oscText.style.fontSize = "0.9em";
+    oscText.style.margin = "0.3em 0 1.2em";
+    oscText.textContent = `OSC: /bank/select/${i + 1}`;
+
     const sceneList = document.createElement("div");
+    sceneList.style.marginTop = "1.5em";
+
     b.scenes.forEach((s, si) => {
       const snm = document.createElement("input");
       snm.className = "inline-input"; snm.value = s.name; snm.placeholder = "Scene Name";
@@ -168,26 +182,55 @@ function renderBanks() {
         s.preview = v ? (v.startsWith("http") || v.includes("/") ? v : `/videos/${v}`) : "";
       });
 
+      const oscScene = document.createElement("div");
+      oscScene.style.color = "#aaa";
+      oscScene.style.fontSize = "0.9em";
+      oscScene.style.margin = "0.3em 0 0.8em";
+      oscScene.textContent = `OSC: /scene/select/${si + 1}`;
+
       const delS = document.createElement("button");
       delS.className = "danger"; delS.textContent = "🗑 Delete Scene";
-      delS.onclick = () => deleteScene(i, si);
+      delS.onclick = () => {
+        if (confirm("Are you sure you want to delete this scene?")) {
+          banks[i].scenes.splice(si, 1);
+          renderBanks();
+          // Reopen this collapsible
+          setTimeout(() => {
+            document.querySelectorAll(".collapsible")[i].click();
+          }, 0);
+        }
+      };
 
-      sceneList.append(snm, spr, delS);
+      sceneList.append(snm, spr, oscScene, delS);
     });
 
     const addS = document.createElement("button");
     addS.className = "secondary"; addS.textContent = "➕ Add Scene";
-    addS.onclick = () => addScene(i);
+    addS.onclick = () => {
+      banks[i].scenes.push({ name: "New Scene", preview: "" });
+      renderBanks();
+      // Reopen this collapsible
+      setTimeout(() => {
+        document.querySelectorAll(".collapsible")[i].click();
+      }, 0);
+    };
 
     const delB = document.createElement("button");
     delB.className = "danger"; delB.textContent = "🗑 Delete Bank";
-    delB.onclick = () => deleteBank(i);
+    delB.onclick = () => {
+      if (confirm("Are you sure you want to delete this bank and all its scenes?")) {
+        banks.splice(i, 1);
+        renderBanks();
+      }
+    };
 
-    inner.append(nm, bg, sceneList, addS, delB);
+    inner.append(nm, bg, oscText, sceneList, addS, delB);
     content.append(inner);
     out.append(coll, content);
   });
 }
+
+
 function saveBanks() {
   fetch("/api/banks", {
     method:"POST",
@@ -225,7 +268,7 @@ function renderComputers() {
       <input class="bg-input" value="${c.wol}" placeholder="WOL (MAC Address)" onchange="hardware.computers[${i}].wol=this.value">
       <input class="bg-input" value="${c.shutdown}" placeholder="Shutdown Command" onchange="hardware.computers[${i}].shutdown=this.value">
       <input class="bg-input" value="${c.reboot}" placeholder="Reboot Command" onchange="hardware.computers[${i}].reboot=this.value">
-      <button class="danger" onclick="hardware.computers.splice(${i},1);renderComputers()">🗑 Delete Computer</button>
+      <button class="danger" onclick="if(confirm('Are you sure you want to delete this computer?')) { hardware.computers.splice(${i},1); renderComputers(); }">🗑 Delete Computer</button>
     `;
     content.append(inner);
     out.append(coll, content);
@@ -261,7 +304,7 @@ function renderProjectors() {
       <input class="bg-input" value="${p.port}" placeholder="Port" onchange="hardware.projectors[${i}].port=parseInt(this.value)">
       <input class="bg-input" value="${p.onCmd}" placeholder="ON Command" onchange="hardware.projectors[${i}].onCmd=this.value">
       <input class="bg-input" value="${p.offCmd}" placeholder="OFF Command" onchange="hardware.projectors[${i}].offCmd=this.value">
-      <button class="danger" onclick="hardware.projectors.splice(${i},1);renderProjectors()">🗑 Delete Projector</button>
+      <button class="danger" onclick="if(confirm('Are you sure you want to delete this projector?')) { hardware.projectors.splice(${i},1); renderProjectors(); }">🗑 Delete Projector</button>
     `;
     content.append(inner);
     out.append(coll, content);
