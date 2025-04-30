@@ -1,0 +1,20 @@
+{
+  "computers": [
+    {
+      "name": "MM2",
+      "ip": "192.168.1.102",
+      "wol": "9C:6B:00:56:3D:BA",
+      "shutdown": "SHUTDOWN",
+      "reboot": "REBOOT"
+    }
+  ],
+  "projectors": [
+    {
+      "name": "OPTOMA TEST",
+      "ip": "192.168.1.109",
+      "port": 4352,
+      "onCmd": "%1POWR 1",
+      "offCmd": "%1POWR 0"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "name": "madmapper-control-panel",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "express": "^5.1.0",
+    "osc": "^2.4.5",
+    "wake_on_lan": "^1.0.0",
+    "wake-on-lan": "^0.1.0",
+    "ws": "^8.18.1"
+  }
+}

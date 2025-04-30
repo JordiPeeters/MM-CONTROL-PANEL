@@ -1,0 +1,254 @@
+/* === Reset & Full-Viewport Background === */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-color: rgba(0,0,0,0.5);
+  background-blend-mode: darken;
+  background-attachment: fixed;
+  font-family: 'Helvetica Neue', sans-serif;
+  color: #dddddd;
+}
+
+/* === Modern Full-Width Navbar === */
+.navbar {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  background: #1f1f1f;
+  display: flex;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  z-index: 1000;
+}
+.nav-btn {
+  flex: 1;
+  margin: 0 2px;
+  padding: 0.6em 1em;
+  background: transparent;
+  color: #aaa;
+  border: none;
+  font-size: 1rem;
+  font-weight: 500;
+  border-bottom: 3px solid transparent;
+  border-radius: 4px;
+  transition: background 0.2s, color 0.2s, border-bottom-color 0.2s;
+}
+.nav-btn:hover {
+  background: #2c2c2c;
+  color: #fff;
+}
+.nav-btn.active {
+  background: #2c2c2c;
+  color: #fff;
+  border-bottom-color: #4a90e2;
+}
+
+/* === Central UI Container === */
+.container {
+  margin: 3.5em auto 0;
+  width: 90%;
+  max-width: 1000px;
+  max-height: calc(100vh - 3.5em);
+  padding: 1em;
+  background-color: rgba(42, 42, 42, 0.8);
+  border-radius: 6px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+/* === Tabs Visibility === */
+.tab { display: none; }
+.tab.active { display: block; }
+
+/* === Preview Video === */
+.preview-container {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 1em;
+}
+#previewVideo {
+  width: 100%;
+  max-height: 400px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+/* === Transport Controls (centered) === */
+.transport-controls {
+  display: flex;
+  justify-content: center;
+  margin: 1em 0;
+  z-index: 2;
+}
+
+/* === Bank Selector === */
+.bank-select {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 1em;
+}
+.bank-select label {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #eeeeee;
+  margin-bottom: 0.3em;
+}
+#bankDropdown {
+  width: 100%;
+  font-size: 1.2rem;
+  padding: 0.6em 1em;
+  background: #3a3a3a;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  box-shadow: 0 0 3px #4a90e2;
+}
+
+/* === Scene Grid & Buttons === */
+.scene-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  margin-top: 1em;
+}
+.scene-btn {
+  padding: 1em;
+  background: #3a3a3a;
+  color: #eeeeee;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 0 4px #111;
+}
+
+.scene-btn .icon {
+  color: #888888;       /* grey icon */
+  margin-right: 0.5em;  /* space between icon and text */
+}
+
+.scene-btn:hover {
+  background: #5a5a5a;
+  box-shadow: 0 0 10px #4a90e2;
+}
+.scene-btn.scene-active {
+  background: #4a90e2;
+  color: #fff;
+  box-shadow: 0 0 10px #4a90e2;
+}
+.scene-btn.flash {
+  animation: flashScene 0.3s;
+}
+@keyframes flashScene {
+  0% { background-color: #4a90e2; transform: scale(1.05); }
+ 100% { background-color: #3a3a3a; transform: scale(1); }
+}
+
+/* === Hardware Control Panels === */
+.hardware-panels {
+  display: flex;
+  gap: 2em;
+  margin-top: 1em;
+}
+.hardware-panel {
+  flex: 1;
+  background: #2b2b2b;
+  border: 1px solid #555;
+  border-radius: 6px;
+  padding: 1em;
+}
+.hardware-panel h3 {
+  margin-top: 0;
+  color: #ddd;
+}
+
+/* === Hardware Buttons – now match .scene-btn === */
+.hardware-panel button {
+  padding: 1em;
+  background: #3a3a3a;
+  color: #eeeeee;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 0 4px #111;
+  margin: 0.3em 0.3em 0.3em 0;
+}
+.hardware-panel button:hover {
+  background: #5a5a5a;
+  box-shadow: 0 0 10px #4a90e2;
+}
+.hardware-panel button:active {
+  background-color: #4a90e2;
+  transform: scale(1.05);
+}
+
+/* === Logs Tab === */
+.log-box {
+  background: #2c2c2c;
+  padding: 1em;
+  border-radius: 5px;
+  font-family: monospace;
+  max-height: 300px;
+  overflow-y: auto;
+  text-align: left;
+}
+
+/* === Bottom-Right Status & Active Scene === */
+.panel-status {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  font-size: 0.85rem;
+  z-index: 1000;
+}
+.osc-status {
+  display: flex;
+  align-items: center;
+  color: #ccc;
+}
+.status-dot {
+  width: 10px;
+  height: 10px;
+  margin-right: 4px;
+  border-radius: 50%;
+}
+.status-dot.green {
+  background-color: #4caf50;
+  box-shadow: 0 0 4px #4caf50;
+}
+.status-dot.red {
+  background-color: #ff4f4f;
+  box-shadow: 0 0 4px #ff4f4f;
+}
+.active-scene {
+  color: #bbbbbb;
+}
+
+/* (already includes your full layout previously posted) */
+/* ADD THESE EXTRA CLASSES for OSC Monitor color */
+
+.osc-bank {
+  color: #4a90e2; /* blue */
+}
+.osc-scene {
+  color: #5edb5e; /* green */
+}
+.osc-playpause {
+  color: #cc99ff; /* purple */
+}
+
+.log-udp {
+  color: #4caf50;
+  font-family: monospace;
+  font-size: 0.95rem;
+}

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Control Panel</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <button class="nav-btn active" onclick="switchTab('madmapper',event)">Video Control (MadMapper)</button>
+    <button class="nav-btn" onclick="switchTab('hardware',event)">Opstarten / Afsluiten</button>
+    <button class="nav-btn" onclick="switchTab('logs',event)">User Log</button>
+    <button class="nav-btn" onclick="switchTab('daslight',event)">Light Control (Daslight)</button>
+  </nav>
+
+  <div class="container">
+    <!-- MadMapper Control -->
+    <div id="madmapper" class="tab active">
+      <div class="preview-container">
+        <video id="previewVideo" controls autoplay muted loop></video>
+      </div>
+
+      <div class="transport-controls">
+        <button id="playPauseBtn" class="scene-btn"><span class="icon">⏸️</span>Pause</button>
+      </div>
+
+      <div class="bank-select">
+        <label for="bankDropdown">Select Bank</label>
+        <select id="bankDropdown" onchange="selectBank()"></select>
+      </div>
+
+      <div id="scenesContainer" class="scene-grid"></div>
+    </div>
+
+    <!-- Hardware Control -->
+    <div id="hardware" class="tab">
+      <h2>Opstarten / Afsluiten</h2>
+      <div class="hardware-panels">
+        <div id="computersContainer" class="hardware-panel">
+          <h3>Computers</h3>
+        </div>
+        <div id="projectorsContainer" class="hardware-panel">
+          <h3>Projectors</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Logs Tab -->
+    <div id="logs" class="tab">
+      <h2>User Log</h2>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div><strong>Recent User Actions</strong></div>
+        <button onclick="clearUserLog()" class="scene-btn" style="padding: 0.3em 1em;">Clear User Log</button>
+      </div>
+      <div id="logOutput" class="log-box"></div>
+
+      <h2>OSC Monitor</h2>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div><strong>Outgoing OSC Messages</strong></div>
+        <button onclick="clearOSCMonitor()" class="scene-btn" style="padding: 0.3em 1em;">Clear OSC Monitor</button>
+      </div>
+      <div id="oscMonitor" class="log-box"></div>
+
+      <button
+        id="openAdminBtn"
+        class="scene-btn"
+        style="position:fixed;bottom:1em;right:1em;z-index:1000;"
+      >
+        Open Admin Panel
+      </button>
+    </div>
+
+    <!-- Daslight Tab -->
+    <div id="daslight" class="tab">
+      <h2>Light Control (Daslight)</h2>
+      <p>Reserved for future Daslight integration.</p>
+    </div>
+  </div>
+
+  <!-- Status Indicators -->
+  <div class="panel-status">
+    <div id="status-MM1" class="osc-status">
+      <span class="status-dot red"></span><span class="status-label">MM1: Disconnected</span>
+    </div>
+    <div id="status-MM2" class="osc-status">
+      <span class="status-dot red"></span><span class="status-label">MM2: Disconnected</span>
+    </div>
+    <div id="activeSceneLabel" class="active-scene"></div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>

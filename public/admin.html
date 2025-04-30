@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .tabs { display:flex; gap:10px; margin-bottom:1em; }
+    .admin-tab {
+      padding:0.6em 1.2em; background:#333; color:#ccc;
+      border:none; border-radius:4px; cursor:pointer;
+      transition:background 0.2s;
+    }
+    .admin-tab.active { background:#4a90e2; color:#fff; }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+    .collapsible {
+      background:#2d2d2d;
+      color:#ddd;
+      padding:1em;
+      margin:1em 0;
+      border-radius:6px;
+      cursor:pointer;
+      font-size:1.1rem;
+      font-weight:600;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .collapsible.active { background:#3a3a3a; }
+    .content {
+      padding:0 1em;
+      max-height:0;
+      overflow:hidden;
+      transition:max-height 0.3s ease;
+      background: #2a2a2a;
+      border-radius: 0 0 6px 6px;
+      margin-bottom:1em;
+    }
+    .content-inner {
+      padding:1em 0;
+    }
+    .inline-input, .bg-input {
+      display:block;
+      width:100%;
+      margin:0.5em 0;
+      padding:0.4em;
+      background:#444;
+      color:#fff;
+      border:none;
+      border-radius:4px;
+    }
+    button { margin:0.2em; padding:0.6em 1em; border:none; border-radius:4px; cursor:pointer; }
+    .primary { background:#4a90e2; color:#fff; }
+    .secondary { background:#555; color:#fff; }
+    .danger { background:#c0392b; color:#fff; }
+  </style>
+</head>
+
+<body>
+<div class="container">
+  <h1>Admin Panel</h1>
+
+  <div class="tabs">
+    <button class="admin-tab active" onclick="showTab('tabMadMapper', event)">MadMapper</button>
+    <button class="admin-tab" onclick="showTab('tabHardware', event)">Hardware</button>
+    <button class="admin-tab" onclick="showTab('tabDaslight', event)">Daslight</button>
+  </div>
+
+  <div id="tabMadMapper" class="tab-content active">
+    <div id="banks"></div>
+    <button class="secondary" onclick="addBank()">➕ Add Bank</button>
+    <button class="primary" onclick="saveBanks()">💾 Save Banks</button>
+  </div>
+
+  <div id="tabHardware" class="tab-content">
+    <h3>Computers</h3>
+    <div id="computers"></div>
+    <button class="secondary" onclick="addComputer()">➕ Add Computer</button>
+
+    <h3>Projectors</h3>
+    <div id="projectors"></div>
+    <button class="secondary" onclick="addProjector()">➕ Add Projector</button>
+
+    <br/>
+    <button class="primary" onclick="saveHardware()">💾 Save Hardware</button>
+  </div>
+
+  <div id="tabDaslight" class="tab-content">
+    <p>Daslight settings coming soon…</p>
+  </div>
+</div>
+
+<script>
+const socket = new WebSocket(`ws://${location.hostname}:3000`);
+let banks = [], hardware = { computers: [], projectors: [] };
+
+function showTab(id, ev) {
+  document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+  document.querySelectorAll(".admin-tab").forEach(b => b.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  ev.currentTarget.classList.add("active");
+}
+
+socket.onmessage = ev => {
+  const d = JSON.parse(ev.data);
+  if (d.type === "updateBanks") { banks = d.banks; renderBanks(); }
+  if (d.type === "updateHardware") { hardware = d.hardware; renderComputers(); renderProjectors(); }
+};
+
+/* === Banks and Scenes === */
+function addBank() {
+  banks.push({ name:"New Bank", background:"", scenes:[] });
+  renderBanks();
+}
+function deleteBank(i) {
+  banks.splice(i,1); renderBanks();
+}
+function addScene(i) {
+  banks[i].scenes.push({ name:"New Scene", preview:"" });
+  renderBanks();
+}
+function deleteScene(bankIdx, sceneIdx) {
+  banks[bankIdx].scenes.splice(sceneIdx,1);
+  renderBanks();
+}
+function renderBanks() {
+  const out = document.getElementById("banks"); out.innerHTML = "";
+  banks.forEach((b,i) => {
+    const coll = document.createElement("div");
+    coll.className = "collapsible";
+    coll.innerHTML = `${b.name || 'Unnamed Bank'} <span>▼</span>`;
+    coll.onclick = function() {
+      this.classList.toggle("active");
+      const content = this.nextElementSibling;
+      content.style.maxHeight = content.style.maxHeight ? null : content.scrollHeight + "px";
+    };
+
+    const content = document.createElement("div");
+    content.className = "content";
+
+    const inner = document.createElement("div");
+    inner.className = "content-inner";
+
+    const nm = document.createElement("input");
+    nm.className = "inline-input"; nm.value = b.name; nm.placeholder = "Bank Name";
+    nm.addEventListener("input", () => b.name = nm.value);
+
+    const bg = document.createElement("input");
+    bg.className = "bg-input"; bg.placeholder = "Background filename";
+    bg.value = b.background.replace(/^\/images\//, "");
+    bg.addEventListener("input", () => {
+      const v = bg.value.trim();
+      b.background = v ? (v.startsWith("http") || v.includes("/") ? v : `/images/${v}`) : "";
+    });
+
+    const sceneList = document.createElement("div");
+    b.scenes.forEach((s, si) => {
+      const snm = document.createElement("input");
+      snm.className = "inline-input"; snm.value = s.name; snm.placeholder = "Scene Name";
+      snm.addEventListener("input", () => s.name = snm.value);
+
+      const spr = document.createElement("input");
+      spr.className = "bg-input"; spr.value = s.preview?.replace(/^\/videos\//, "") || "";
+      spr.placeholder = "Preview Video (optional)";
+      spr.addEventListener("input", () => {
+        const v = spr.value.trim();
+        s.preview = v ? (v.startsWith("http") || v.includes("/") ? v : `/videos/${v}`) : "";
+      });
+
+      const delS = document.createElement("button");
+      delS.className = "danger"; delS.textContent = "🗑 Delete Scene";
+      delS.onclick = () => deleteScene(i, si);
+
+      sceneList.append(snm, spr, delS);
+    });
+
+    const addS = document.createElement("button");
+    addS.className = "secondary"; addS.textContent = "➕ Add Scene";
+    addS.onclick = () => addScene(i);
+
+    const delB = document.createElement("button");
+    delB.className = "danger"; delB.textContent = "🗑 Delete Bank";
+    delB.onclick = () => deleteBank(i);
+
+    inner.append(nm, bg, sceneList, addS, delB);
+    content.append(inner);
+    out.append(coll, content);
+  });
+}
+function saveBanks() {
+  fetch("/api/banks", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(banks)
+  }).then(r => r.json()).then(() => alert("Banks saved!"));
+}
+
+/* === Computers === */
+function addComputer() {
+  hardware.computers.push({ name:"", ip:"", wol:"", shutdown:"", reboot:"" });
+  renderComputers();
+}
+function renderComputers() {
+  const out = document.getElementById("computers"); out.innerHTML = "";
+  hardware.computers.forEach((c,i) => {
+    const coll = document.createElement("div");
+    coll.className = "collapsible";
+    coll.innerHTML = `${c.name || 'Unnamed Computer'} <span>▼</span>`;
+    coll.onclick = function() {
+      this.classList.toggle("active");
+      const content = this.nextElementSibling;
+      content.style.maxHeight = content.style.maxHeight ? null : content.scrollHeight + "px";
+    };
+
+    const content = document.createElement("div");
+    content.className = "content";
+
+    const inner = document.createElement("div");
+    inner.className = "content-inner";
+
+    inner.innerHTML = `
+      <input class="inline-input" value="${c.name}" placeholder="Computer Name" onchange="hardware.computers[${i}].name=this.value">
+      <input class="bg-input" value="${c.ip}" placeholder="IP Address" onchange="hardware.computers[${i}].ip=this.value">
+      <input class="bg-input" value="${c.wol}" placeholder="WOL (MAC Address)" onchange="hardware.computers[${i}].wol=this.value">
+      <input class="bg-input" value="${c.shutdown}" placeholder="Shutdown Command" onchange="hardware.computers[${i}].shutdown=this.value">
+      <input class="bg-input" value="${c.reboot}" placeholder="Reboot Command" onchange="hardware.computers[${i}].reboot=this.value">
+      <button class="danger" onclick="hardware.computers.splice(${i},1);renderComputers()">🗑 Delete Computer</button>
+    `;
+    content.append(inner);
+    out.append(coll, content);
+  });
+}
+
+/* === Projectors === */
+function addProjector() {
+  hardware.projectors.push({ name:"", ip:"", port:4352, onCmd:"", offCmd:"" });
+  renderProjectors();
+}
+function renderProjectors() {
+  const out = document.getElementById("projectors"); out.innerHTML = "";
+  hardware.projectors.forEach((p,i) => {
+    const coll = document.createElement("div");
+    coll.className = "collapsible";
+    coll.innerHTML = `${p.name || 'Unnamed Projector'} <span>▼</span>`;
+    coll.onclick = function() {
+      this.classList.toggle("active");
+      const content = this.nextElementSibling;
+      content.style.maxHeight = content.style.maxHeight ? null : content.scrollHeight + "px";
+    };
+
+    const content = document.createElement("div");
+    content.className = "content";
+
+    const inner = document.createElement("div");
+    inner.className = "content-inner";
+
+    inner.innerHTML = `
+      <input class="inline-input" value="${p.name}" placeholder="Projector Name" onchange="hardware.projectors[${i}].name=this.value">
+      <input class="bg-input" value="${p.ip}" placeholder="IP Address" onchange="hardware.projectors[${i}].ip=this.value">
+      <input class="bg-input" value="${p.port}" placeholder="Port" onchange="hardware.projectors[${i}].port=parseInt(this.value)">
+      <input class="bg-input" value="${p.onCmd}" placeholder="ON Command" onchange="hardware.projectors[${i}].onCmd=this.value">
+      <input class="bg-input" value="${p.offCmd}" placeholder="OFF Command" onchange="hardware.projectors[${i}].offCmd=this.value">
+      <button class="danger" onclick="hardware.projectors.splice(${i},1);renderProjectors()">🗑 Delete Projector</button>
+    `;
+    content.append(inner);
+    out.append(coll, content);
+  });
+}
+
+function saveHardware() {
+  fetch("/api/hardware", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(hardware)
+  }).then(r => r.json()).then(() => alert("Hardware saved!"));
+}
+</script>
+</body>
+</html>

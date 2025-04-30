@@ -1,0 +1,68 @@
+[
+  {
+    "name": "Motion Experience",
+    "background": "/images/bgMotion.jpg",
+    "scenes": [
+      {
+        "name": "Motion1",
+        "preview": "/videos/previewMotion1.mp4"
+      },
+      {
+        "name": "Motion2",
+        "preview": ""
+      },
+      {
+        "name": "Motion3",
+        "preview": ""
+      },
+      {
+        "name": "Motion4",
+        "preview": ""
+      }
+    ]
+  },
+  {
+    "name": "Dinner in Motion",
+    "background": "/images/bgDIM.jpg",
+    "scenes": [
+      {
+        "name": "DIM1",
+        "preview": ""
+      },
+      {
+        "name": "DIM2",
+        "preview": ""
+      },
+      {
+        "name": "DIM3",
+        "preview": ""
+      },
+      {
+        "name": "DIM4",
+        "preview": ""
+      }
+    ]
+  },
+  {
+    "name": "Events",
+    "background": "/images/bgEvents.jpeg",
+    "scenes": [
+      {
+        "name": "Events1",
+        "preview": ""
+      },
+      {
+        "name": "Events2",
+        "preview": ""
+      },
+      {
+        "name": "Events3",
+        "preview": ""
+      },
+      {
+        "name": "Events4",
+        "preview": ""
+      }
+    ]
+  }
+]
