@@ -57,30 +57,37 @@
       </div>
     </div>
 
-    <!-- Logs Tab -->
-    <div id="logs" class="tab">
-      <h2>User Log</h2>
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div><strong>Recent User Actions</strong></div>
-        <button onclick="clearUserLog()" class="scene-btn" style="padding: 0.3em 1em;">Clear User Log</button>
-      </div>
-      <div id="logOutput" class="log-box"></div>
+<!-- Logs Tab -->
+<div id="logs" class="tab">
+  <h2>User Log</h2>
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <div><strong>Recent User Actions</strong></div>
+    <button onclick="clearUserLog()" class="scene-btn" style="padding: 0.3em 1em;">Clear User Log</button>
+  </div>
+  <div id="logOutput" class="log-box"></div>
 
-      <h2>OSC Monitor</h2>
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div><strong>Outgoing OSC Messages</strong></div>
-        <button onclick="clearOSCMonitor()" class="scene-btn" style="padding: 0.3em 1em;">Clear OSC Monitor</button>
-      </div>
-      <div id="oscMonitor" class="log-box"></div>
+  <h2>OSC Monitor</h2>
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <div><strong>Outgoing OSC Messages</strong></div>
+    <button onclick="clearOSCMonitor()" class="scene-btn" style="padding: 0.3em 1em;">Clear OSC Monitor</button>
+  </div>
+  <div id="oscMonitor" class="log-box"></div>
 
-      <button
-        id="openAdminBtn"
-        class="scene-btn"
-        style="position:fixed;bottom:1em;right:1em;z-index:1000;"
-      >
-        Open Admin Panel
-      </button>
-    </div>
+  <h2>UDP Monitor</h2>
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <div><strong>Raw UDP/TCP Messages</strong></div>
+    <button onclick="clearUdpLog()" class="scene-btn" style="padding: 0.3em 1em;">Clear UDP Monitor</button>
+  </div>
+  <div id="udpMonitor" class="log-box"></div>  
+
+  <button
+    id="openAdminBtn"
+    class="scene-btn"
+    style="position:fixed;bottom:1em;right:1em;z-index:1000;"
+  >
+    Open Admin Panel
+  </button>
+</div>
 
     <!-- Daslight Tab -->
     <div id="daslight" class="tab">

@@ -48,25 +48,36 @@ function turnOffProjectors() {
 let lastFeedbackTimes = { MM1: 0, MM2: 0 };
 
 // === Logging helpers ===
+let userLogs = [];
+
 function logUser(msg) {
+  const time = new Date().toLocaleTimeString();
+  userLogs.push({ time, msg });
+  if (userLogs.length > 50) userLogs.shift();
+
   const box = document.getElementById("logOutput");
-  const p = document.createElement("p");
-  p.textContent = `${new Date().toLocaleTimeString()} – ${msg}`;
-  box.appendChild(p);
+  box.innerHTML = userLogs.map(log => 
+    `<p class="log-action">${log.time} – ${log.msg}</p>`
+  ).join("");
   box.scrollTop = box.scrollHeight;
 }
+let oscLogs = [];
+
 function logOSC(msg, type="normal") {
   const box = document.getElementById("oscMonitor");
   const p = document.createElement("p");
-  p.className = "osc-" + type;
+  p.className = "osc-" + type;  // Important: Matches .osc-bank, .osc-scene, etc.
   p.textContent = `${new Date().toLocaleTimeString()} – ${msg}`;
   box.appendChild(p);
   box.scrollTop = box.scrollHeight;
 }
+
 function clearUserLog() {
+  userLogs = [];
   document.getElementById("logOutput").innerHTML = "";
 }
 function clearOSCMonitor() {
+  oscLogs = [];
   document.getElementById("oscMonitor").innerHTML = "";
 }
 
@@ -80,6 +91,9 @@ document.addEventListener("click", e => {
 socket.addEventListener("message", ev => {
   const d = JSON.parse(ev.data);
 
+  if (d.type === "udpLog") {
+    logUdpMessage(d.message, d.isError);
+  }
   if (d.type === "updateBanks") {
     banks = d.banks;
     updateBankDropdown();
@@ -261,3 +275,33 @@ function confirmProjector(idx, action) {
 // Open Admin
 document.getElementById("openAdminBtn")
   .addEventListener("click", () => window.open("/admin.html", "_blank"));
+
+//UDP Logging
+let udpLogs = [];
+
+function logUdpMessage(msg, isError = false) {
+  const time = new Date().toLocaleTimeString();
+  const div = document.createElement("div");
+  div.className = isError ? "log-udp-error" : "log-udp";
+  div.textContent = `[${time}] ${msg}`;
+  const out = document.getElementById("udpMonitor");
+  out.appendChild(div);
+  out.scrollTop = out.scrollHeight;
+
+  // Limit to 50 lines
+  while (out.children.length > 50) {
+    out.removeChild(out.firstChild);
+  }
+}
+
+function updateUdpMonitor() {
+  const out = document.getElementById("udpMonitor");
+  out.innerHTML = udpLogs.map(log =>
+    `<div class="log-udp">[${log.time}] ${log.message}</div>`
+  ).join("");
+}
+
+function clearUdpLog() {
+  udpLogs = [];
+  document.getElementById("udpMonitor").innerHTML = "";
+}

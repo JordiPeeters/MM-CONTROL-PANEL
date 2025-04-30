@@ -188,16 +188,29 @@ html, body {
   transform: scale(1.05);
 }
 
+/* === LOG BOXES (Fixed Height & Scrollable Inside) === */
 /* === Logs Tab === */
 .log-box {
   background: #2c2c2c;
   padding: 1em;
   border-radius: 5px;
   font-family: monospace;
-  max-height: 300px;
+  max-height: 110px;
   overflow-y: auto;
   text-align: left;
+  margin-bottom: 1em;
 }
+
+
+/* === LOG MESSAGE COLORS === */
+/* === Log Colors === */
+.log-action { color: #92ff92; }       /* User log - green */
+.osc-bank   { color: #4a90e2; }       /* OSC bank - blue */
+.osc-scene  { color: #f0c674; }       /* OSC scene - yellow */
+.osc-playpause { color: #f06292; }    /* OSC play/pause - pink */
+.log-udp    { color: #ccc; }          /* Default UDP - gray */
+.log-udp-error { color: #ff4f4f; }    /* UDP/TCP error - red */
+
 
 /* === Bottom-Right Status & Active Scene === */
 .panel-status {
@@ -245,12 +258,6 @@ html, body {
 }
 .osc-playpause {
   color: #cc99ff; /* purple */
-}
-
-.log-udp {
-  color: #4caf50;
-  font-family: monospace;
-  font-size: 0.95rem;
 }
 
 .startup-controls {

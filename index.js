@@ -46,18 +46,51 @@ udpMonitorServer.on("message", (msg, rinfo) => {
 });
 udpMonitorServer.bind(9991); // Listening port for monitor
 
+function broadcastLog(type, message, isError = false) {
+  wss.clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify({
+        type,
+        message,
+        isError
+      }));
+    }
+  });
+}
+
+
 function sendUDPCommand(ip, message) {
   const buf = Buffer.from(message);
   udpClient.send(buf, 9990, ip, (err) => {
-    if (err) console.error("❌ UDP Send error:", err);
-    else console.log(`✅ UDP "${message}" sent to ${ip}:9990`);
+    const time = new Date().toLocaleTimeString();
+    if (err) {
+      console.error("❌ UDP Send error:", err);
+    } else {
+      const log = `[SEND] ${message} → ${ip}:9990`;
+      console.log("📤", log);
+      wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify({ type: "udpLog", message: log }));
+        }
+      });
+    }
   });
 }
 
 function wakeOnLan(mac) {
   wol.wake(mac, (err) => {
-    if (err) console.error("❌ WOL error:", err);
-    else console.log(`✅ WOL sent to MAC: ${mac}`);
+    const time = new Date().toLocaleTimeString();
+    if (err) {
+      console.error("❌ WOL error:", err);
+    } else {
+      const log = `[WOL] Wake-on-LAN → ${mac}`;
+      console.log("🔆", log);
+      wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify({ type: "udpLog", message: log }));
+        }
+      });
+    }
   });
 }
 
@@ -120,14 +153,47 @@ wss.on("connection", (ws) => {
     if (msg.type === "executeProjector") {
       const proj = hardware.projectors[msg.index];
       if (!proj) return;
+    
       const cmd = msg.action === "on" ? proj.onCmd : proj.offCmd;
       const port = proj.port || 4352;
+    
       if (cmd && proj.ip) {
-        sendTCPCommand(proj.ip, port, cmd);
+        const net = require("net");
+        const client = new net.Socket();
+        client.connect(port, proj.ip, () => {
+          client.write(cmd);
+          client.end();
+        });
+    
+        client.on("error", (e) => {
+          console.error("❌ TCP Error:", e.message);
+          broadcastLog("udpLog", `TCP ERROR: ${e.message}`, true);
+        });
       }
+    }
+     
+    
+  });
+});
+
+//UDP Server
+const udpServer = dgram.createSocket("udp4");
+udpServer.on("message", (msg, rinfo) => {
+  const text = msg.toString();
+  console.log(`📨 UDP: ${text} from ${rinfo.address}:${rinfo.port}`);
+  wss.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify({
+        type: "udpLog",
+        time: new Date().toLocaleTimeString(),
+        message: `${text} from ${rinfo.address}`
+      }));
     }
   });
 });
+udpServer.bind(9990);
+
+
 
 // OSC
 const oscUDP = new osc.UDPPort({
