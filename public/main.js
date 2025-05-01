@@ -142,9 +142,9 @@ setInterval(() => {
 const playPauseBtn = document.getElementById("playPauseBtn");
 function updatePlayPauseButton() {
   if (isPlaying) {
-    playPauseBtn.innerHTML = `<span class="icon">⏸️</span>Pause`;
+    playPauseBtn.innerHTML = `<span class="icon">⏸</span>Pause`;
   } else {
-    playPauseBtn.innerHTML = `<span class="icon">▶️</span>Play`;
+    playPauseBtn.innerHTML = `<span class="icon">▶</span>Play`;
   }
 }
 updatePlayPauseButton();

@@ -6,6 +6,13 @@
       "wol": "9C:6B:00:56:3D:BA",
       "shutdown": "SHUTDOWN",
       "reboot": "REBOOT"
+    },
+    {
+      "name": "Test",
+      "ip": "test",
+      "wol": "test",
+      "shutdown": "test",
+      "reboot": "test"
     }
   ],
   "projectors": [
