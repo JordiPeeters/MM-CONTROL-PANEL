@@ -196,37 +196,53 @@ function updateBackground() {
 }
 function updateScenes() {
   const cont = document.getElementById("scenesContainer");
+  const preview = document.getElementById("previewVideo");
   cont.innerHTML = "";
+
   (banks[selectedBankIndex]?.scenes || []).forEach((scene, idx) => {
     const btn = document.createElement("button");
     btn.className = "scene-btn";
     btn.textContent = scene.name;
+
     if (idx === lastTriggeredScene) {
       btn.classList.add("scene-active");
+
       if (scene.preview) {
         let src = scene.preview;
         if (!src.startsWith("http") && !src.startsWith("/")) {
           src = "/videos/" + src;
         }
-        document.getElementById("previewVideo").src = src;
+        preview.src = src;
+        preview.load();
+        preview.play();
+      } else {
+        // No preview video for this scene — clear video but keep element visible
+        preview.removeAttribute("src");
+        preview.load(); // Resets the player to a blank state
       }
     }
+
     btn.addEventListener("click", () => {
       if (sceneCooldown) return;
+
       lastTriggeredScene = idx;
       socket.send(JSON.stringify({ type: "selectScene", scene: idx }));
       logOSC(`Sent: /scene/select/${idx + 1}`, "scene");
+
       btn.classList.add("flash");
       setTimeout(() => btn.classList.remove("flash"), 300);
+
       sceneCooldown = true;
       setTimeout(() => {
         sceneCooldown = false;
         updateScenes();
       }, 2000);
     });
+
     cont.appendChild(btn);
   });
 }
+
 
 // Hardware UI
 function renderHardware() {
