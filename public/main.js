@@ -27,7 +27,7 @@ function wakeComputers() {
 
 function shutdownComputers() {
   hardware.computers.forEach((comp, index) => {
-    socket.send(JSON.stringify({ type: "executeComputer", index, action: "shutdown" }));
+    confirmComputer(index, "shutdown");
   });
 }
 
@@ -39,7 +39,7 @@ function turnOnProjectors() {
 
 function turnOffProjectors() {
   hardware.projectors.forEach((proj, index) => {
-    socket.send(JSON.stringify({ type: "executeProjector", index, action: "off" }));
+    confirmProjector(index, "off");
   });
 }
 
@@ -260,17 +260,23 @@ function renderHardware() {
 
 function confirmComputer(idx, action) {
   const comp = hardware.computers[idx];
-  const verbMap = { wake: "turn on", shutdown: "turn off", reboot: "reboot" };
+  const verbMap = {
+    wake: "turn on",
+    shutdown: "turn off",
+    reboot: "reboot"
+  };
   const verb = verbMap[action];
-  if (!confirm(`Are you sure you want to ${verb} "${comp.name}"?`)) return;
+  if (action !== "wake" && !confirm(`Are you sure you want to ${verb} "${comp.name}"?`)) return;
   socket.send(JSON.stringify({ type: "executeComputer", index: idx, action }));
 }
+
 function confirmProjector(idx, action) {
   const proj = hardware.projectors[idx];
   const verb = action === "on" ? "turn on" : "turn off";
-  if (!confirm(`Are you sure you want to ${verb} "${proj.name}"?`)) return;
+  if (action !== "on" && !confirm(`Are you sure you want to ${verb} "${proj.name}"?`)) return;
   socket.send(JSON.stringify({ type: "executeProjector", index: idx, action }));
 }
+
 
 // Open Admin
 document.getElementById("openAdminBtn")
