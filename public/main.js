@@ -6,45 +6,82 @@ let selectedBankIndex = 0;
 let lastTriggeredScene = -1;
 let sceneCooldown = false;
 let isPlaying = true;
+let daslightScenes = [];
+let activeDaslightIndex = null;
 
-function startAll() {
-  wakeComputers();
-  turnOnProjectors();
-}
-
-function shutdownAll() {
-  if (confirm("Weet je zeker dat je alles wilt uitschakelen?")) {
-    shutdownComputers();
-    turnOffProjectors();
-  }
-}
-
-function wakeComputers() {
-  hardware.computers.forEach((comp, index) => {
-    socket.send(JSON.stringify({ type: "executeComputer", index, action: "wake" }));
+// Turn off ALL computers
+function computersUit() {
+  if (!confirm("Weet je zeker dat je alle computers wilt uitschakelen?")) return;
+  hardware.computers.forEach((_, idx) => {
+    socket.send(JSON.stringify({
+      type: "executeComputer",
+      index: idx,
+      action: "shutdown"
+    }));
   });
 }
 
-function shutdownComputers() {
-  hardware.computers.forEach((comp, index) => {
-    confirmComputer(index, "shutdown");
+// Turn off ALL projectors
+function projectorsUit() {
+  if (!confirm("Weet je zeker dat je alle projectoren wilt uitschakelen?")) return;
+  hardware.projectors.forEach((_, idx) => {
+    socket.send(JSON.stringify({
+      type: "executeProjector",
+      index: idx,
+      action: "off"
+    }));
   });
 }
 
-function turnOnProjectors() {
-  hardware.projectors.forEach((proj, index) => {
-    socket.send(JSON.stringify({ type: "executeProjector", index, action: "on" }));
+// Turn off everything
+function allesUit() {
+  if (!confirm("Weet je zeker dat je alles wilt uitschakelen?")) return;
+  hardware.computers.forEach((_, idx) => {
+    socket.send(JSON.stringify({
+      type: "executeComputer",
+      index: idx,
+      action: "shutdown"
+    }));
+  });
+  hardware.projectors.forEach((_, idx) => {
+    socket.send(JSON.stringify({
+      type: "executeProjector",
+      index: idx,
+      action: "off"
+    }));
   });
 }
 
-function turnOffProjectors() {
-  hardware.projectors.forEach((proj, index) => {
-    confirmProjector(index, "off");
+// Turn on ALL computers
+function computersAan() {
+  hardware.computers.forEach((_, idx) => {
+    socket.send(JSON.stringify({
+      type: "executeComputer",
+      index: idx,
+      action: "wake"
+    }));
   });
 }
 
+// Turn on ALL projectors
+function projectorsAan() {
+  hardware.projectors.forEach((_, idx) => {
+    socket.send(JSON.stringify({
+      type: "executeProjector",
+      index: idx,
+      action: "on"
+    }));
+  });
+}
 
-// Track feedback times for MM1 & MM2
+// Turn on everything
+function allesAan() {
+  computersAan();
+  projectorsAan();
+}
+
+
+// Track feedback for MM1 & MM2
 let lastFeedbackTimes = { MM1: 0, MM2: 0 };
 
 // === Logging helpers ===
@@ -66,7 +103,7 @@ let oscLogs = [];
 function logOSC(msg, type="normal") {
   const box = document.getElementById("oscMonitor");
   const p = document.createElement("p");
-  p.className = "osc-" + type;  // Important: Matches .osc-bank, .osc-scene, etc.
+  p.className = "osc-" + type;
   p.textContent = `${new Date().toLocaleTimeString()} – ${msg}`;
   box.appendChild(p);
   box.scrollTop = box.scrollHeight;
@@ -114,9 +151,23 @@ socket.addEventListener("message", ev => {
     hardware = d.hardware;
     renderHardware();
   }
+  if (d.type === "updateDaslightScenes") {
+    daslightScenes = d.daslightScenes;
+    renderDaslightScenes();
+  }  
+  if (d.type === "daslightFeedback") {
+    const dot = document.querySelector("#status-Daslight .status-dot");
+    const lbl = document.querySelector("#status-Daslight .status-label");
+    if (d.connected) {
+      dot.className = "status-dot green";
+      lbl.textContent = "Daslight: Connected";
+    } else {
+      dot.className = "status-dot red";
+      lbl.textContent = "Daslight: Disconnected";
+    }
+  }
 });
 
-// Always update feedback indicator if we get any OSC message
 socket.addEventListener("message", ev => {
   lastFeedbackTimes.MM1 = Date.now();
   lastFeedbackTimes.MM2 = Date.now();
@@ -216,9 +267,9 @@ function updateScenes() {
         preview.load();
         preview.play();
       } else {
-        // No preview video for this scene — clear video but keep element visible
+        // No preview video for this scene
         preview.removeAttribute("src");
-        preview.load(); // Resets the player to a blank state
+        preview.load(); // Resets the player
       }
     }
 
@@ -274,25 +325,26 @@ function renderHardware() {
   });
 }
 
+// Individual device actions
 function confirmComputer(idx, action) {
   const comp = hardware.computers[idx];
-  const verbMap = {
-    wake: "turn on",
-    shutdown: "turn off",
-    reboot: "reboot"
-  };
-  const verb = verbMap[action];
-  if (action !== "wake" && !confirm(`Are you sure you want to ${verb} "${comp.name}"?`)) return;
+  const verb = action === "wake"
+    ? "turn on"
+    : action === "shutdown"
+      ? "turn off"
+      : "reboot";
+  if (action !== "wake" &&
+      !confirm(`Are you sure you want to ${verb} "${comp.name}"?`)) return;
   socket.send(JSON.stringify({ type: "executeComputer", index: idx, action }));
 }
 
 function confirmProjector(idx, action) {
   const proj = hardware.projectors[idx];
   const verb = action === "on" ? "turn on" : "turn off";
-  if (action !== "on" && !confirm(`Are you sure you want to ${verb} "${proj.name}"?`)) return;
+  if (action !== "on" &&
+      !confirm(`Are you sure you want to ${verb} "${proj.name}"?`)) return;
   socket.send(JSON.stringify({ type: "executeProjector", index: idx, action }));
 }
-
 
 // Open Admin
 document.getElementById("openAdminBtn")
@@ -327,3 +379,38 @@ function clearUdpLog() {
   udpLogs = [];
   document.getElementById("udpMonitor").innerHTML = "";
 }
+
+function renderDaslightScenes() {
+  const container = document.getElementById("daslightScenesContainer");
+  const label     = document.getElementById("activeDaslightLabel");
+  container.innerHTML = "";
+
+  daslightScenes.forEach((scene, index) => {
+    const btn = document.createElement("button");
+    btn.className = "scene-btn";
+    btn.textContent = scene.name;
+
+    // highlight if active
+    if (index === activeDaslightIndex) {
+      btn.classList.add("scene-active");
+    }
+
+    btn.addEventListener("click", () => {
+      socket.send(JSON.stringify({ type: "triggerDaslightScene", index }));
+      // use "scene" so it shows in the existing OSC log
+      logOSC(`Sent: ${scene.oscCommand}`, "scene");
+      activeDaslightIndex = index;
+      renderDaslightScenes();
+      document.getElementById("activeDaslightLabel").textContent = "Active: " + scene.name;
+    });
+    
+
+    container.appendChild(btn);
+  });
+
+  // if nothing selected
+  if (activeDaslightIndex === null) {
+    label.textContent = "Active: None";
+  }
+}
+

@@ -52,12 +52,13 @@ html, body {
   margin: 3.5em auto 0;
   width: 90%;
   max-width: 1000px;
-  max-height: calc(100vh - 3.5em);
+  max-height: calc(97vh - 3.5em);
   padding: 1em;
   background-color: rgba(42, 42, 42, 0.8);
   border-radius: 6px;
   box-sizing: border-box;
   overflow-y: auto;
+
 }
 
 /* === Tabs Visibility === */
@@ -130,8 +131,8 @@ html, body {
 }
 
 .scene-btn .icon {
-  color: #888888;       /* grey icon */
-  margin-right: 0.5em;  /* space between icon and text */
+  color: #888888;
+  margin-right: 0.5em;
 }
 
 .scene-btn:hover {
@@ -169,7 +170,7 @@ html, body {
   color: #ddd;
 }
 
-/* === Hardware Buttons – now match .scene-btn === */
+/* === Hardware Buttons === */
 .hardware-panel button {
   padding: 1em;
   background: #3a3a3a;
@@ -190,7 +191,6 @@ html, body {
   transform: scale(1.05);
 }
 
-/* === LOG BOXES (Fixed Height & Scrollable Inside) === */
 /* === Logs Tab === */
 .log-box {
   background: #2c2c2c;
@@ -203,15 +203,13 @@ html, body {
   margin-bottom: 1em;
 }
 
-
-/* === LOG MESSAGE COLORS === */
 /* === Log Colors === */
-.log-action { color: #92ff92; }       /* User log - green */
-.osc-bank   { color: #4a90e2; }       /* OSC bank - blue */
-.osc-scene  { color: #f0c674; }       /* OSC scene - yellow */
-.osc-playpause { color: #f06292; }    /* OSC play/pause - pink */
-.log-udp    { color: #ccc; }          /* Default UDP - gray */
-.log-udp-error { color: #ff4f4f; }    /* UDP/TCP error - red */
+.log-action { color: #92ff92; }       /* User log */
+.osc-bank   { color: #4a90e2; }       /* OSC bank */
+.osc-scene  { color: #f0c674; }       /* OSC scene */
+.osc-playpause { color: #f06292; }    /* OSC play/pause */
+.log-udp    { color: #ccc; }          /* Default UDP */
+.log-udp-error { color: #ff4f4f; }    /* UDP/TCP error */
 
 
 /* === Bottom-Right Status & Active Scene === */
@@ -249,17 +247,16 @@ html, body {
   color: #bbbbbb;
 }
 
-/* (already includes your full layout previously posted) */
-/* ADD THESE EXTRA CLASSES for OSC Monitor color */
+/* OSC Monitor color */
 
 .osc-bank {
-  color: #4a90e2; /* blue */
+  color: #4a90e2;
 }
 .osc-scene {
-  color: #5edb5e; /* green */
+  color: #5edb5e;
 }
 .osc-playpause {
-  color: #cc99ff; /* purple */
+  color: #cc99ff;
 }
 
 .startup-controls {
@@ -319,10 +316,17 @@ button.danger:hover {
   box-shadow: 0 0 10px rgba(231,76,60,0.53);
 }
 
-/* === Grouped layout for startup/shutdown controls === */
 .startup-controls {
   display: flex;
   flex-wrap: wrap;
   gap: 0.8em;
   margin-bottom: 2em;
+}
+
+/* Limit height and make only the lists scrollable */
+#computersContainer,
+#projectorsContainer {
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 8px;
 }

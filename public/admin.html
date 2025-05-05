@@ -87,13 +87,18 @@
   </div>
 
   <div id="tabDaslight" class="tab-content">
-    <p>Daslight settings coming soon…</p>
+    <h3>Daslight Scenes</h3>
+    <div id="daslightSceneList"></div>
+    <button class="secondary" onclick="addDaslightScene()">➕ Add Scene</button>
+    <button class="primary" onclick="saveDaslightScenes()">💾 Save Daslight Scenes</button>    
   </div>
 </div>
 
 <script>
 const socket = new WebSocket(`ws://${location.hostname}:3000`);
 let banks = [], hardware = { computers: [], projectors: [] };
+let daslightScenes = [];
+
 
 function showTab(id, ev) {
   document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
@@ -106,9 +111,10 @@ socket.onmessage = ev => {
   const d = JSON.parse(ev.data);
   if (d.type === "updateBanks") { banks = d.banks; renderBanks(); }
   if (d.type === "updateHardware") { hardware = d.hardware; renderComputers(); renderProjectors(); }
+  if (d.type === "updateDaslightScenes") { daslightScenes = d.daslightScenes; renderDaslightScenesAdmin(); }
 };
 
-/* === Banks and Scenes === */
+ // Banks and Scenes
 function addBank() {
   banks.push({ name:"New Bank", background:"", scenes:[] });
   renderBanks();
@@ -275,7 +281,7 @@ function renderComputers() {
   });
 }
 
-/* === Projectors === */
+//Projectors
 function addProjector() {
   hardware.projectors.push({ name:"", ip:"", port:4352, onCmd:"", offCmd:"" });
   renderProjectors();
@@ -318,6 +324,136 @@ function saveHardware() {
     body:JSON.stringify(hardware)
   }).then(r => r.json()).then(() => alert("Hardware saved!"));
 }
+
+// Daslight
+function addDaslightScene() {
+  daslightScenes.push({ name: "New Scene", oscCommand: "/scene/1" });
+  renderDaslightScenesAdmin();
+}
+
+function renderDaslightScenesAdmin() {
+      const out = document.getElementById("daslightSceneList");
+      out.innerHTML = "";
+      daslightScenes.forEach((s, i) => {
+        const div = document.createElement("div");
+        div.className = "device";
+
+        const nameInput = document.createElement("input");
+        nameInput.className = "inline-input";
+        nameInput.value = s.name;
+        nameInput.placeholder = "Scene Name";
+        nameInput.oninput = () => s.name = nameInput.value;
+
+        const oscInput = document.createElement("input");
+        oscInput.className = "bg-input";
+        oscInput.value = s.oscCommand || "";
+        oscInput.placeholder = "OSC Command (e.g. /scene/1)";
+        oscInput.oninput = () => s.oscCommand = oscInput.value;
+
+        const delBtn = document.createElement("button");
+        delBtn.className = "danger";
+        delBtn.textContent = "🗑 Delete Scene";
+        delBtn.onclick = () => {
+          if (confirm("Delete this Daslight scene?")) {
+            daslightScenes.splice(i, 1);
+            renderDaslightScenesAdmin();
+          }
+        };
+
+        div.append(nameInput, oscInput, delBtn);
+        out.appendChild(div);
+      });
+    }
+
+function saveDaslightScenes() {
+  fetch("/api/daslight", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(daslightScenes)
+  })
+  .then(r => r.json())
+  .then(() => alert("Daslight scenes saved!"))
+  .catch(e => alert("Error saving Daslight scenes: " + e));
+}
+
+
+
 </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const overlay = document.createElement("div");
+      Object.assign(overlay.style, {
+        position: "fixed",
+        top: 0, left: 0, right: 0, bottom: 0,
+        background: "rgba(0,0,0,0.8)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 9999,
+      });
+
+      const box = document.createElement("div");
+      Object.assign(box.style, {
+        background: "#222",
+        padding: "2em",
+        borderRadius: "6px",
+        textAlign: "center",
+        color: "#fff",
+        fontFamily: "sans-serif"
+      });
+
+      const input = document.createElement("input");
+      input.type = "password";
+      input.placeholder = "Admin password";
+      Object.assign(input.style, {
+        padding: "0.5em",
+        fontSize: "1rem",
+        width: "200px",
+        marginRight: "0.5em",
+        borderRadius: "4px",
+        border: "none"
+      });
+  
+      const btn = document.createElement("button");
+      btn.textContent = "Unlock";
+      Object.assign(btn.style, {
+        padding: "0.5em 1em",
+        fontSize: "1rem",
+        border: "none",
+        borderRadius: "4px",
+        background: "#4a90e2",
+        color: "#fff",
+        cursor: "pointer"
+      });
+  
+      const error = document.createElement("div");
+      error.textContent = "Incorrect password";
+      Object.assign(error.style, {
+        color: "#f88",
+        marginTop: "0.5em",
+        display: "none"
+      });
+  
+      box.append(input, btn, error);
+      overlay.append(box);
+      document.body.append(overlay);
+
+      const PASSWORD = "0104";  // password here
+      function tryUnlock() {
+        if (input.value === PASSWORD) {
+          document.body.removeChild(overlay);
+        } else {
+          error.style.display = "block";
+        }
+      }
+  
+      btn.addEventListener("click", tryUnlock);
+      input.addEventListener("keyup", e => {
+        if (e.key === "Enter") tryUnlock();
+      });
+    });
+    </script>
+
 </body>
 </html>

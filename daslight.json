@@ -1,0 +1,34 @@
+[
+  {
+    "name": "DINNER IN MOTION",
+    "oscCommand": "/DIM"
+  },
+  {
+    "name": "MOTION EXPERIENCE",
+    "oscCommand": "/MOTION"
+  },
+  {
+    "name": "MOTION SPECIALS",
+    "oscCommand": "/MOTION_SPECIALS"
+  },
+  {
+    "name": "KIDSTIME",
+    "oscCommand": "/KIDSTIME"
+  },
+  {
+    "name": "PRESHOW DIM",
+    "oscCommand": "/PRESHOW_DIM"
+  },
+  {
+    "name": "CITY OF LIGHT",
+    "oscCommand": "/CITY_OF_LIGHT"
+  },
+  {
+    "name": "ALLES WIT",
+    "oscCommand": "/ALL_WHITE"
+  },
+  {
+    "name": "ALLES UIT",
+    "oscCommand": "/ALL_OFF"
+  }
+]

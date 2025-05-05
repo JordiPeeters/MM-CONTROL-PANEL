@@ -4,23 +4,31 @@
     "background": "/images/bgMotion.jpg",
     "scenes": [
       {
-        "name": "Motion1",
-        "preview": "/videos/previewMotion1.mp4"
-      },
-      {
-        "name": "Motion2",
+        "name": "MAGICAL GARDEN",
         "preview": ""
       },
       {
-        "name": "Motion3",
+        "name": "KIDS TIME",
         "preview": ""
       },
       {
-        "name": "Motion4",
+        "name": "STANDAARD",
         "preview": ""
       },
       {
-        "name": "HOIHOIHOI",
+        "name": "YOGA",
+        "preview": ""
+      },
+      {
+        "name": "PASEN",
+        "preview": ""
+      },
+      {
+        "name": "WINTER",
+        "preview": ""
+      },
+      {
+        "name": "LIGHTCITY",
         "preview": ""
       }
     ]
@@ -30,19 +38,23 @@
     "background": "/images/bgDIM.jpg",
     "scenes": [
       {
-        "name": "DIM1",
+        "name": "MAGICAL GARDEN",
         "preview": ""
       },
       {
-        "name": "DIM2",
+        "name": "MAGICAL GARDEN ETEN",
         "preview": ""
       },
       {
-        "name": "DIM3",
+        "name": "STANDARD THEME",
         "preview": ""
       },
       {
-        "name": "DIM4",
+        "name": "WINTER",
+        "preview": ""
+      },
+      {
+        "name": "PRESHOW",
         "preview": ""
       }
     ]
@@ -52,19 +64,81 @@
     "background": "/images/bgEvents.jpeg",
     "scenes": [
       {
-        "name": "Events1",
+        "name": "TEMPLATE GENERIC BLUE",
         "preview": ""
       },
       {
-        "name": "Events2",
+        "name": "TEMPLATE GENERIC CYAN",
         "preview": ""
       },
       {
-        "name": "Events3",
+        "name": "TEMPLATE GENERIC GREEN",
         "preview": ""
       },
       {
-        "name": "Events4",
+        "name": "TEMPLATE GENERIC ORANGE",
+        "preview": ""
+      },
+      {
+        "name": "TEMPLATE GENERIC RED",
+        "preview": ""
+      },
+      {
+        "name": "TEMPLATE GENERIC YELLOW",
+        "preview": ""
+      },
+      {
+        "name": "TEMPLATE INDUSTRIAL",
+        "preview": ""
+      },
+      {
+        "name": "TEMPLATE LUXURY",
+        "preview": ""
+      },
+      {
+        "name": "TEMPLATE NATURE",
+        "preview": ""
+      },
+      {
+        "name": "TEMPLATE TECH BLUE",
+        "preview": ""
+      },
+      {
+        "name": "TEMPLATE TECH CYAN",
+        "preview": ""
+      },
+      {
+        "name": "TEMPLATE TECH GREEN",
+        "preview": ""
+      },
+      {
+        "name": "TEMPLATE TECH ORANGE",
+        "preview": ""
+      },
+      {
+        "name": "TEMPLATE TECH RED",
+        "preview": ""
+      },
+      {
+        "name": "TEMPLATE TECH YELLOW",
+        "preview": ""
+      }
+    ]
+  },
+  {
+    "name": "Techniek & Content",
+    "background": "/images/bgcontent.jpg",
+    "scenes": [
+      {
+        "name": "UITLIJNGRID",
+        "preview": ""
+      },
+      {
+        "name": "GRAYSCALE",
+        "preview": ""
+      },
+      {
+        "name": "PERSPECTIEF TEST",
         "preview": ""
       }
     ]

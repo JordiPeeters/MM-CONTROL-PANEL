@@ -6,6 +6,7 @@ const fs = require("fs");
 const dgram = require("dgram");
 const net = require("net");
 const wol = require("wake_on_lan");
+const DASLIGHT_FILE = "daslight.json";
 
 const MADMAPPER_1 = { address: "192.168.1.101", port: 8000 };
 const MADMAPPER_2 = { address: "192.168.1.102", port: 8000 };
@@ -16,7 +17,18 @@ const wss = new WebSocket.Server({ server });
 
 let banks = [];
 let hardware = { computers: [], projectors: [] };
+let daslightScenes = [];
+let daslightConnected = false;
 
+
+if (fs.existsSync(DASLIGHT_FILE)) {
+  try {
+    daslightScenes = JSON.parse(fs.readFileSync(DASLIGHT_FILE, "utf8"));
+    console.log(`Loaded ${daslightScenes.length} Daslight scenes from ${DASLIGHT_FILE}`);
+  } catch (e) {
+    console.error("Error parsing Daslight JSON:", e);
+  }
+}
 if (fs.existsSync("banks.json")) {
   banks = JSON.parse(fs.readFileSync("banks.json", "utf8"));
 }
@@ -29,10 +41,10 @@ app.use(express.json());
 
 const udpClient = dgram.createSocket("udp4");
 
-// UDP Monitor Server (incoming monitoring)
+// UDP Monitor Server
 const udpMonitorServer = dgram.createSocket("udp4");
 udpMonitorServer.on("message", (msg, rinfo) => {
-  console.log(`📥 UDP Monitor from ${rinfo.address}:${rinfo.port} - ${msg}`);
+  console.log(`UDP Monitor from ${rinfo.address}:${rinfo.port} - ${msg}`);
   wss.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
       client.send(JSON.stringify({
@@ -64,10 +76,10 @@ function sendUDPCommand(ip, message) {
   udpClient.send(buf, 9990, ip, (err) => {
     const time = new Date().toLocaleTimeString();
     if (err) {
-      console.error("❌ UDP Send error:", err);
+      console.error("UDP Send error:", err);
     } else {
       const log = `[SEND] ${message} → ${ip}:9990`;
-      console.log("📤", log);
+      console.log("", log);
       wss.clients.forEach(client => {
         if (client.readyState === WebSocket.OPEN) {
           client.send(JSON.stringify({ type: "udpLog", message: log }));
@@ -81,7 +93,7 @@ function wakeOnLan(mac) {
   wol.wake(mac, (err) => {
     const time = new Date().toLocaleTimeString();
     if (err) {
-      console.error("❌ WOL error:", err);
+      console.error("WOL error:", err);
     } else {
       const log = `[WOL] Wake-on-LAN → ${mac}`;
       console.log("🔆", log);
@@ -97,19 +109,67 @@ function wakeOnLan(mac) {
 function sendTCPCommand(ip, port, message) {
   const client = new net.Socket();
   client.connect(port, ip, () => {
-    console.log(`🔵 TCP Connected to ${ip}:${port}`);
+    console.log(`TCP Connected to ${ip}:${port}`);
     client.write(message);
     client.end();
   });
   client.on('error', (err) => {
-    console.error(`❌ TCP error to ${ip}:${port}:`, err.message);
+    console.error(`TCP error to ${ip}:${port}:`, err.message);
   });
 }
 
+// Broadcast Daslight status to all clients
+function updateDaslightStatus(isUp) {
+  if (daslightConnected === isUp) return;
+  daslightConnected = isUp;
+  wss.clients.forEach(ws => {
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({
+        type: "daslightFeedback",
+        connected: isUp
+      }));
+    }
+  });
+}
+
+//Try TCP connect to Daslight’s OSC port
+function checkDaslight() {
+  const sock = new net.Socket();
+  let done = false;
+  const timeout = setTimeout(() => {
+    if (done) return;
+    done = true;
+    sock.destroy();
+    updateDaslightStatus(false);
+  }, 2000);
+
+  sock.connect(8080, "127.0.0.1", () => {
+    if (done) return;
+    done = true;
+    clearTimeout(timeout);
+    sock.destroy();
+    updateDaslightStatus(true);
+  });
+
+  sock.on("error", () => {
+    if (done) return;
+    done = true;
+    clearTimeout(timeout);
+    updateDaslightStatus(false);
+  });
+}
+
+// Start checking every 5 seconds
+setInterval(checkDaslight, 5000);
+checkDaslight();
+
+
 wss.on("connection", (ws) => {
-  console.log("🔌 Web client connected");
+  console.log("Web client connected");
   ws.send(JSON.stringify({ type: "updateBanks", banks }));
   ws.send(JSON.stringify({ type: "updateHardware", hardware }));
+  ws.send(JSON.stringify({ type: "updateDaslightScenes", daslightScenes }));
+  ws.send(JSON.stringify({ type: "daslightFeedback", connected: daslightConnected }));
 
   ws.on("message", (message) => {
     const msg = JSON.parse(message);
@@ -138,18 +198,36 @@ wss.on("connection", (ws) => {
       });
     }
 
-    if (msg.type === "executeComputer") {
-      const comp = hardware.computers[msg.index];
-      if (!comp) return;
-      if (msg.action === "wake") {
-        wakeOnLan(comp.wol);
-      } else if (msg.action === "shutdown") {
-        sendUDPCommand(comp.ip, comp.shutdown || "SHUTDOWN");
-      } else if (msg.action === "reboot") {
-        sendUDPCommand(comp.ip, comp.reboot || "REBOOT");
-      }
+if (msg.type === "executeComputer") {
+  const comp = hardware.computers[msg.index];
+  if (!comp) return;
+
+  if (msg.action === "wake") {
+    // only wake if MAC is non‐empty
+    if (comp.wol && comp.wol.trim()) {
+      wakeOnLan(comp.wol);
+    } else {
+      const warn = `Cannot wake "${comp.name}": no MAC address configured.`;
+      console.warn(warn);
+      // show in UDP log as error
+      wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify({
+            type: "udpLog",
+            message: warn,
+            level: "log-udp-error"
+          }));
+        }
+      });
     }
 
+  } else if (msg.action === "shutdown") {
+    sendUDPCommand(comp.ip, comp.shutdown || "SHUTDOWN");
+
+  } else if (msg.action === "reboot") {
+    sendUDPCommand(comp.ip, comp.reboot || "REBOOT");
+  }
+}
     if (msg.type === "executeProjector") {
       const proj = hardware.projectors[msg.index];
       if (!proj) return;
@@ -166,12 +244,23 @@ wss.on("connection", (ws) => {
         });
     
         client.on("error", (e) => {
-          console.error("❌ TCP Error:", e.message);
+          console.error("TCP Error:", e.message);
           broadcastLog("udpLog", `TCP ERROR: ${e.message}`, true);
         });
       }
     }
-     
+
+    if (msg.type === "daslightScene") {
+      const scene = daslightScenes[msg.index];
+      if (!scene || !scene.command) {
+        console.warn("Invalid Daslight scene command");
+        return;
+      }
+    
+      console.log(`Sending to Daslight: ${scene.command}`);
+      oscDaslight.send({ address: scene.command, args: [] }, "127.0.0.1", 8080);
+    }
+      
     
   });
 });
@@ -180,7 +269,7 @@ wss.on("connection", (ws) => {
 const udpServer = dgram.createSocket("udp4");
 udpServer.on("message", (msg, rinfo) => {
   const text = msg.toString();
-  console.log(`📨 UDP: ${text} from ${rinfo.address}:${rinfo.port}`);
+  console.log(`UDP: ${text} from ${rinfo.address}:${rinfo.port}`);
   wss.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
       client.send(JSON.stringify({
@@ -196,6 +285,14 @@ udpServer.bind(9990);
 
 
 // OSC
+const oscDaslight = new osc.UDPPort({
+  localAddress: "0.0.0.0",
+  localPort: 0, // any free port
+  remoteAddress: "127.0.0.1",
+  remotePort: 8080
+});
+oscDaslight.open();
+
 const oscUDP = new osc.UDPPort({
   localAddress: "0.0.0.0",
   localPort: 9000,
@@ -211,7 +308,7 @@ const oscFeedback = new osc.UDPPort({
 oscFeedback.open();
 
 oscFeedback.on("message", (oscMsg) => {
-  console.log("📥 OSC Feedback:", oscMsg.address);
+  console.log("OSC Feedback:", oscMsg.address);
   wss.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
       if (oscMsg.address.startsWith("/bank/select/")) {
@@ -246,6 +343,24 @@ app.post("/api/hardware", (req, res) => {
   res.json({ success: true });
 });
 
+// API to Save Daslight Scenes
+app.post("/api/daslight", (req, res) => {
+  daslightScenes = req.body;
+  fs.writeFileSync(DASLIGHT_FILE, JSON.stringify(daslightScenes, null, 2), "utf8");
+
+  // rebroadcast to all clients
+  wss.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify({
+        type: "updateDaslightScenes",
+        daslightScenes
+      }));
+    }
+  });
+
+  res.json({ success: true });
+});
+
 server.listen(3000, () => {
-  console.log("🌐 Server running at http://localhost:3000");
+  console.log("Server running at http://localhost:3000");
 });

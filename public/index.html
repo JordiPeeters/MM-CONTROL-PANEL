@@ -10,8 +10,8 @@
   <nav class="navbar">
     <button class="nav-btn active" onclick="switchTab('madmapper',event)">Video Control (MadMapper)</button>
     <button class="nav-btn" onclick="switchTab('hardware',event)">Opstarten / Afsluiten</button>
-    <button class="nav-btn" onclick="switchTab('logs',event)">User Log</button>
     <button class="nav-btn" onclick="switchTab('daslight',event)">Light Control (Daslight)</button>
+    <button class="nav-btn" onclick="switchTab('logs',event)">User Log</button>
   </nav>
 
   <div class="container">
@@ -37,14 +37,14 @@
     <div id="hardware" class="tab">
       <h2>Opstarten / Afsluiten</h2>
       <div class="startup-controls">
-        <button class="primary" onclick="startAll()">Alles aan</button>
-        <button class="danger" onclick="shutdownAll()">Alles uit</button>
+        <button class="primary" onclick="allesAan()">Alles aan</button>
+        <button class="danger" onclick="allesUit()">Alles uit</button>
       </div>
       <div class="startup-controls">
-        <button class="secondary" onclick="wakeComputers()">Computers aan</button>
-        <button class="secondary" onclick="shutdownComputers()">Computers uit</button>
-        <button class="secondary" onclick="turnOnProjectors()">Projectors aan</button>
-        <button class="secondary" onclick="turnOffProjectors()">Projectors uit</button>
+        <button class="secondary" onclick="computersAan()">Computers aan</button>
+        <button class="secondary" onclick="computersUit()">Computers uit</button>
+        <button class="secondary" onclick="projectorsAan()">Projectors aan</button>
+        <button class="secondary" onclick="projectorsUit()">Projectors uit</button>
       </div>
           
       <div class="hardware-panels">
@@ -56,6 +56,16 @@
         </div>
       </div>
     </div>
+
+<!-- Daslight Control Tab -->
+<div id="daslight" class="tab">
+  <h2>Light Control (Daslight)</h2>
+  <div id="activeDaslightLabel" class="active-scene" style="margin-bottom:0.5em;">
+    Active: None
+  </div>
+  <div id="daslightScenesContainer" class="scene-grid"></div>
+</div>
+
 
 <!-- Logs Tab -->
 <div id="logs" class="tab">
@@ -83,18 +93,12 @@
   <button
     id="openAdminBtn"
     class="scene-btn"
-    style="position:fixed;bottom:1em;right:1em;z-index:1000;"
+    style="position:fixed;bottom:6em;right:1em;z-index:1000;"
   >
     Open Admin Panel
   </button>
 </div>
 
-    <!-- Daslight Tab -->
-    <div id="daslight" class="tab">
-      <h2>Light Control (Daslight)</h2>
-      <p>Reserved for future Daslight integration.</p>
-    </div>
-  </div>
 
   <!-- Status Indicators -->
   <div class="panel-status">
@@ -104,8 +108,12 @@
     <div id="status-MM2" class="osc-status">
       <span class="status-dot red"></span><span class="status-label">MM2: Disconnected</span>
     </div>
+    <div id="status-Daslight" class="osc-status">
+      <div class="status-dot red"></div><div class="status-label">Daslight: Disconnected</div>
+    </div>
     <div id="activeSceneLabel" class="active-scene"></div>
   </div>
+  
 
   <script src="main.js"></script>
 </body>

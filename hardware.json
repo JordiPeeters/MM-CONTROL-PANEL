@@ -1,24 +1,101 @@
 {
   "computers": [
     {
-      "name": "MM2",
-      "ip": "192.168.1.102",
-      "wol": "9C:6B:00:56:3D:BA",
+      "name": "MM PLAYER 1",
+      "ip": "192.168.0.101",
+      "wol": "",
       "shutdown": "SHUTDOWN",
       "reboot": "REBOOT"
     },
     {
-      "name": "Test",
-      "ip": "test",
-      "wol": "test",
-      "shutdown": "test",
-      "reboot": "test"
+      "name": "MM PLAYER 2",
+      "ip": "192.168.0.102",
+      "wol": "",
+      "shutdown": "SHUTDOWN",
+      "reboot": "REBOOT"
+    },
+    {
+      "name": "HOLOBOX",
+      "ip": "192.168.3.166",
+      "wol": "D8:5E:D3:AA:B3:D5",
+      "shutdown": "SHUTDOWN",
+      "reboot": "REBOOT"
+    },
+    {
+      "name": "INTERACTIVE FOYER",
+      "ip": "192.168.3.126",
+      "wol": "10:7C:61:73:CD:86",
+      "shutdown": "SHUTDOWN",
+      "reboot": "REBOOT"
+    },
+    {
+      "name": "DODECAHEDRON",
+      "ip": "192.168.3.130",
+      "wol": "94:C6:91:16:66:A7",
+      "shutdown": "SHUTDOWN",
+      "reboot": "REBOOT"
+    },
+    {
+      "name": "INTERACTIVE TV",
+      "ip": "192.168.3.165",
+      "wol": "D8:5E:D3:D3:78:C6",
+      "shutdown": "SHUTDOWN",
+      "reboot": "REBOOT"
     }
   ],
   "projectors": [
     {
-      "name": "OPTOMA TEST",
-      "ip": "192.168.1.109",
+      "name": "OPTOMA P1",
+      "ip": "192.168.3.151",
+      "port": 4352,
+      "onCmd": "%1POWR 1",
+      "offCmd": "%1POWR 0"
+    },
+    {
+      "name": "OPTOMA P2",
+      "ip": "192.168.3.152",
+      "port": 4352,
+      "onCmd": "%1POWR 1",
+      "offCmd": "%1POWR 0"
+    },
+    {
+      "name": "OPTOMA P3",
+      "ip": "192.168.3.153",
+      "port": 4352,
+      "onCmd": "",
+      "offCmd": ""
+    },
+    {
+      "name": "OPTOMA P4",
+      "ip": "192.168.3.154",
+      "port": 4352,
+      "onCmd": "%1POWR 1",
+      "offCmd": "%1POWR 0"
+    },
+    {
+      "name": "OPTOMA P5",
+      "ip": "192.168.3.155",
+      "port": 4352,
+      "onCmd": "%1POWR 1",
+      "offCmd": "%1POWR 0"
+    },
+    {
+      "name": "OPTOMA P6",
+      "ip": "192.168.3.156",
+      "port": 4352,
+      "onCmd": "%1POWR 1",
+      "offCmd": "%1POWR 0"
+    },
+    {
+      "name": "OPTOMA P7",
+      "ip": "192.168.3.157",
+      "port": 4352,
+      "onCmd": "%1POWR 1",
+      "offCmd": "%1POWR 0"
+    },
+    {
+      "name": "OPTOMA INTERACTIVE FOYER",
+      "ip": "192.168.3.158",
       "port": 4352,
       "onCmd": "%1POWR 1",
       "offCmd": "%1POWR 0"
