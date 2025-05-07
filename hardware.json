@@ -1,16 +1,16 @@
 {
   "computers": [
     {
-      "name": "MM PLAYER 1",
-      "ip": "192.168.0.101",
-      "wol": "",
+      "name": "MM FOYER 1",
+      "ip": "192.168.3.101",
+      "wol": "9C:6B:00:56:3E:1B",
       "shutdown": "SHUTDOWN",
       "reboot": "REBOOT"
     },
     {
-      "name": "MM PLAYER 2",
-      "ip": "192.168.0.102",
-      "wol": "",
+      "name": "MM FOYER 2",
+      "ip": "192.168.3.102",
+      "wol": "9C:6B:00:56:3D:BA",
       "shutdown": "SHUTDOWN",
       "reboot": "REBOOT"
     },
@@ -41,6 +41,13 @@
       "wol": "D8:5E:D3:D3:78:C6",
       "shutdown": "SHUTDOWN",
       "reboot": "REBOOT"
+    },
+    {
+      "name": "TUBES OF ILLUSION",
+      "ip": "192.168.3.125",
+      "wol": "4C:52:62:A8:B4:D8",
+      "shutdown": "SHUTDOWN",
+      "reboot": "REBOOT"
     }
   ],
   "projectors": [
@@ -62,8 +69,8 @@
       "name": "OPTOMA P3",
       "ip": "192.168.3.153",
       "port": 4352,
-      "onCmd": "",
-      "offCmd": ""
+      "onCmd": "%1POWR 1",
+      "offCmd": "%1POWR 0"
     },
     {
       "name": "OPTOMA P4",

@@ -111,7 +111,7 @@ socket.onmessage = ev => {
   const d = JSON.parse(ev.data);
   if (d.type === "updateBanks") { banks = d.banks; renderBanks(); }
   if (d.type === "updateHardware") { hardware = d.hardware; renderComputers(); renderProjectors(); }
-  if (d.type === "updateDaslightScenes") { daslightScenes = d.daslightScenes; renderDaslightScenesAdmin(); }
+  if (d.type === "updateDaslightScenes") { daslightScenes = d.daslightScenes; renderDaslightScenesAdmin(); renderBanks(); }
 };
 
  // Banks and Scenes
@@ -135,101 +135,162 @@ function renderBanks() {
   out.innerHTML = "";
 
   banks.forEach((b, i) => {
+    // ——— Collapsible Header ———
     const coll = document.createElement("div");
     coll.className = "collapsible";
     coll.innerHTML = `${b.name || 'Unnamed Bank'} <span>▼</span>`;
 
-    // Keep reference to toggle open status
     let isOpen = false;
     coll.onclick = function () {
       isOpen = !isOpen;
       this.classList.toggle("active");
       const content = this.nextElementSibling;
-      content.style.maxHeight = isOpen ? content.scrollHeight + "px" : null;
+      content.style.maxHeight = isOpen
+        ? content.scrollHeight + "px"
+        : null;
     };
 
+    // ——— Content Wrapper ———
     const content = document.createElement("div");
     content.className = "content";
-
     const inner = document.createElement("div");
     inner.className = "content-inner";
 
+    // ——— Bank Name Input ———
     const nm = document.createElement("input");
-    nm.className = "inline-input"; nm.value = b.name; nm.placeholder = "Bank Name";
+    nm.className = "inline-input";
+    nm.value = b.name;
+    nm.placeholder = "Bank Name";
     nm.addEventListener("input", () => b.name = nm.value);
 
+    // ——— Background Input ———
     const bg = document.createElement("input");
-    bg.className = "bg-input"; bg.placeholder = "Background filename";
+    bg.className = "bg-input";
+    bg.placeholder = "Background filename";
     bg.value = b.background.replace(/^\/images\//, "");
     bg.addEventListener("input", () => {
       const v = bg.value.trim();
-      b.background = v ? (v.startsWith("http") || v.includes("/") ? v : `/images/${v}`) : "";
+      b.background = v
+        ? (v.startsWith("http") || v.includes("/") ? v : `/images/${v}`)
+        : "";
     });
 
+    // ——— OSC Bank Hint ———
     const oscText = document.createElement("div");
     oscText.style.color = "#aaa";
     oscText.style.fontSize = "0.9em";
     oscText.style.margin = "0.3em 0 1.2em";
     oscText.textContent = `OSC: /bank/select/${i + 1}`;
 
+    // ——— Scene List Container ———
     const sceneList = document.createElement("div");
+    sceneList.id = `scene-list-${i}`;
     sceneList.style.marginTop = "1.5em";
 
+    // ——— Render Scenes ———
     b.scenes.forEach((s, si) => {
+      // Scene Name
       const snm = document.createElement("input");
-      snm.className = "inline-input"; snm.value = s.name; snm.placeholder = "Scene Name";
+      snm.className = "inline-input";
+      snm.value = s.name;
+      snm.placeholder = "Scene Name";
       snm.addEventListener("input", () => s.name = snm.value);
 
+      // Preview Video
       const spr = document.createElement("input");
-      spr.className = "bg-input"; spr.value = s.preview?.replace(/^\/videos\//, "") || "";
+      spr.className = "bg-input";
+      spr.value = s.preview?.replace(/^\/videos\//, "") || "";
       spr.placeholder = "Preview Video (optional)";
       spr.addEventListener("input", () => {
         const v = spr.value.trim();
-        s.preview = v ? (v.startsWith("http") || v.includes("/") ? v : `/videos/${v}`) : "";
+        s.preview = v
+          ? (v.startsWith("http") || v.includes("/") ? v : `/videos/${v}`)
+          : "";
       });
 
+      // OSC Scene Hint
       const oscScene = document.createElement("div");
       oscScene.style.color = "#aaa";
       oscScene.style.fontSize = "0.9em";
       oscScene.style.margin = "0.3em 0 0.8em";
       oscScene.textContent = `OSC: /scene/select/${si + 1}`;
 
-      const delS = document.createElement("button");
-      delS.className = "danger"; delS.textContent = "🗑 Delete Scene";
-      delS.onclick = () => {
-        if (confirm("Are you sure you want to delete this scene?")) {
-          banks[i].scenes.splice(si, 1);
-          renderBanks();
-          // Reopen this collapsible
-          setTimeout(() => {
-            document.querySelectorAll(".collapsible")[i].click();
-          }, 0);
-        }
+      // ——— Linked Daslight Scene Dropdown ———
+      const linkLabel = document.createElement("div");
+      linkLabel.style = "margin:0.5em 0; color:#ddd; font-size:0.9em";
+      linkLabel.textContent = "Linked Daslight Scene:";
+
+      const linkSelect = document.createElement("select");
+      linkSelect.className = "bg-input";
+      linkSelect.style.marginBottom = "1em";
+
+      // “None” option
+      const noneOpt = new Option("— None —", "");
+      linkSelect.add(noneOpt);
+
+      // populate from global daslightScenes[]
+      daslightScenes.forEach((dls, dli) => {
+        const opt = new Option(dls.name, dli);
+        linkSelect.add(opt);
+      });
+
+      // set current value
+      if (s.daslightIndex != null) {
+        linkSelect.value = s.daslightIndex;
+      }
+
+      linkSelect.onchange = () => {
+        const v = linkSelect.value;
+        s.daslightIndex = v === "" ? null : parseInt(v, 10);
       };
 
-      sceneList.append(snm, spr, oscScene, delS);
+      // ——— Delete Scene Button ———
+      const delS = document.createElement("button");
+      delS.className = "danger";
+      delS.textContent = "🗑 Delete Scene";
+      delS.onclick = () => {
+        if (!confirm("Are you sure you want to delete this scene?")) return;
+        b.scenes.splice(si, 1);
+        renderBanks();
+        setTimeout(() => {
+          document.querySelectorAll(".collapsible")[i].click();
+        }, 0);
+      };
+
+      // append all scene elements
+      sceneList.append(
+        snm,
+        spr,
+        oscScene,
+        linkLabel,
+        linkSelect,
+        delS
+      );
     });
 
+    // ——— Add Scene Button ———
     const addS = document.createElement("button");
-    addS.className = "secondary"; addS.textContent = "➕ Add Scene";
+    addS.className = "secondary";
+    addS.textContent = "➕ Add Scene";
     addS.onclick = () => {
-      banks[i].scenes.push({ name: "New Scene", preview: "" });
+      b.scenes.push({ name: "New Scene", preview: "", daslightIndex: null });
       renderBanks();
-      // Reopen this collapsible
       setTimeout(() => {
         document.querySelectorAll(".collapsible")[i].click();
       }, 0);
     };
 
+    // ——— Delete Bank Button ———
     const delB = document.createElement("button");
-    delB.className = "danger"; delB.textContent = "🗑 Delete Bank";
+    delB.className = "danger";
+    delB.textContent = "🗑 Delete Bank";
     delB.onclick = () => {
-      if (confirm("Are you sure you want to delete this bank and all its scenes?")) {
-        banks.splice(i, 1);
-        renderBanks();
-      }
+      if (!confirm("Are you sure you want to delete this bank and all its scenes?")) return;
+      banks.splice(i, 1);
+      renderBanks();
     };
 
+    // Assemble bank DOM
     inner.append(nm, bg, oscText, sceneList, addS, delB);
     content.append(inner);
     out.append(coll, content);
@@ -439,7 +500,7 @@ function saveDaslightScenes() {
       overlay.append(box);
       document.body.append(overlay);
 
-      const PASSWORD = "0104";  // password here
+      const PASSWORD = "Multi@123MM";  // password here
       function tryUnlock() {
         if (input.value === PASSWORD) {
           document.body.removeChild(overlay);

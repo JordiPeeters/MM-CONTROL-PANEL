@@ -8,8 +8,26 @@ const net = require("net");
 const wol = require("wake_on_lan");
 const DASLIGHT_FILE = "daslight.json";
 
-const MADMAPPER_1 = { address: "192.168.1.101", port: 8000 };
-const MADMAPPER_2 = { address: "192.168.1.102", port: 8000 };
+const MADMAPPER_1 = { address: "192.168.3.101", port: 8000 };
+const MADMAPPER_2 = { address: "192.168.3.102", port: 8000 };
+const DASLIGHT = { address: "10.0.0.120",   port: 8080 };
+// ——— Daslight OSC port ———
+const oscDaslight = new osc.UDPPort({
+  localAddress:  "0.0.0.0",
+  localPort:     0,                // pick any free port
+  remoteAddress: DASLIGHT.address, // 10.0.0.120
+  remotePort:    DASLIGHT.port,    // 8080
+  metadata:      true              // <-- must be true
+});
+
+oscDaslight
+  .on("ready", () => {
+    console.log(`OSC→Daslight ready → ${DASLIGHT.address}:${DASLIGHT.port}`);
+  })
+  .on("error", err => {
+    console.error("OSC→Daslight error:", err.message);
+  })
+  .open();
 
 const app = express();
 const server = http.createServer(app);
@@ -118,6 +136,7 @@ function sendTCPCommand(ip, port, message) {
   });
 }
 
+
 // Broadcast Daslight status to all clients
 function updateDaslightStatus(isUp) {
   if (daslightConnected === isUp) return;
@@ -143,7 +162,7 @@ function checkDaslight() {
     updateDaslightStatus(false);
   }, 2000);
 
-  sock.connect(8080, "127.0.0.1", () => {
+  sock.connect(DASLIGHT.port, DASLIGHT.address, () => {
     if (done) return;
     done = true;
     clearTimeout(timeout);
@@ -152,7 +171,7 @@ function checkDaslight() {
   });
 
   sock.on("error", () => {
-    if (done) return;
+    if (done) return
     done = true;
     clearTimeout(timeout);
     updateDaslightStatus(false);
@@ -249,18 +268,29 @@ if (msg.type === "executeComputer") {
         });
       }
     }
-
-    if (msg.type === "daslightScene") {
-      const scene = daslightScenes[msg.index];
-      if (!scene || !scene.command) {
-        console.warn("Invalid Daslight scene command");
-        return;
-      }
     
-      console.log(`Sending to Daslight: ${scene.command}`);
-      oscDaslight.send({ address: scene.command, args: [] }, "127.0.0.1", 8080);
-    }
-      
+// —— Daslight scene trigger ——
+if (msg.type === "daslightScene") {
+  const s = daslightScenes[msg.index];
+  if (!s || !s.oscCommand) {
+    console.warn("Invalid Daslight scene at index", msg.index);
+    return;
+  }
+  // send a dummy int (1) so Daslight sees a valid OSC value
+  oscDaslight.send({
+    address: s.oscCommand,
+    args: [
+      {
+        type:  "i",   // integer tag
+        value: 1      // dummy value
+      }
+    ]
+  });
+  console.log("OSC→Daslight:", s.oscCommand, "→ 1");
+}
+
+
+    
     
   });
 });
@@ -285,13 +315,6 @@ udpServer.bind(9990);
 
 
 // OSC
-const oscDaslight = new osc.UDPPort({
-  localAddress: "0.0.0.0",
-  localPort: 0, // any free port
-  remoteAddress: "127.0.0.1",
-  remotePort: 8080
-});
-oscDaslight.open();
 
 const oscUDP = new osc.UDPPort({
   localAddress: "0.0.0.0",
@@ -300,12 +323,20 @@ const oscUDP = new osc.UDPPort({
 });
 oscUDP.open();
 
+oscUDP.on("error", err => {
+  console.error("OSC→MadMapper error:", err.message);
+});
+
 const oscFeedback = new osc.UDPPort({
   localAddress: "0.0.0.0",
   localPort: 9001,
   metadata: true
 });
 oscFeedback.open();
+
+oscFeedback.on("error", err => {
+  console.error("OSC‐Feedback error:", err.message);
+});
 
 oscFeedback.on("message", (oscMsg) => {
   console.log("OSC Feedback:", oscMsg.address);

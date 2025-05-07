@@ -5,31 +5,38 @@
     "scenes": [
       {
         "name": "MAGICAL GARDEN",
-        "preview": ""
+        "preview": "/videos/previewMotion1.mp4",
+        "daslightIndex": 0
       },
       {
         "name": "KIDS TIME",
-        "preview": ""
+        "preview": "",
+        "daslightIndex": 7
       },
       {
         "name": "STANDAARD",
-        "preview": ""
+        "preview": "",
+        "daslightIndex": 7
       },
       {
         "name": "YOGA",
-        "preview": ""
+        "preview": "",
+        "daslightIndex": null
       },
       {
         "name": "PASEN",
-        "preview": ""
+        "preview": "",
+        "daslightIndex": null
       },
       {
         "name": "WINTER",
-        "preview": ""
+        "preview": "",
+        "daslightIndex": null
       },
       {
         "name": "LIGHTCITY",
-        "preview": ""
+        "preview": "",
+        "daslightIndex": null
       }
     ]
   },
@@ -39,23 +46,28 @@
     "scenes": [
       {
         "name": "MAGICAL GARDEN",
-        "preview": ""
+        "preview": "",
+        "daslightIndex": null
       },
       {
         "name": "MAGICAL GARDEN ETEN",
-        "preview": ""
+        "preview": "",
+        "daslightIndex": null
       },
       {
         "name": "STANDARD THEME",
-        "preview": ""
+        "preview": "",
+        "daslightIndex": null
       },
       {
         "name": "WINTER",
-        "preview": ""
+        "preview": "",
+        "daslightIndex": null
       },
       {
         "name": "PRESHOW",
-        "preview": ""
+        "preview": "",
+        "daslightIndex": null
       }
     ]
   },
@@ -65,63 +77,78 @@
     "scenes": [
       {
         "name": "TEMPLATE GENERIC BLUE",
-        "preview": ""
+        "preview": "",
+        "daslightIndex": null
       },
       {
         "name": "TEMPLATE GENERIC CYAN",
-        "preview": ""
+        "preview": "",
+        "daslightIndex": null
       },
       {
         "name": "TEMPLATE GENERIC GREEN",
-        "preview": ""
+        "preview": "",
+        "daslightIndex": null
       },
       {
         "name": "TEMPLATE GENERIC ORANGE",
-        "preview": ""
+        "preview": "",
+        "daslightIndex": null
       },
       {
         "name": "TEMPLATE GENERIC RED",
-        "preview": ""
+        "preview": "",
+        "daslightIndex": null
       },
       {
         "name": "TEMPLATE GENERIC YELLOW",
-        "preview": ""
+        "preview": "",
+        "daslightIndex": null
       },
       {
         "name": "TEMPLATE INDUSTRIAL",
-        "preview": ""
+        "preview": "",
+        "daslightIndex": null
       },
       {
         "name": "TEMPLATE LUXURY",
-        "preview": ""
+        "preview": "",
+        "daslightIndex": null
       },
       {
         "name": "TEMPLATE NATURE",
-        "preview": ""
+        "preview": "",
+        "daslightIndex": null
       },
       {
         "name": "TEMPLATE TECH BLUE",
-        "preview": ""
+        "preview": "",
+        "daslightIndex": null
       },
       {
         "name": "TEMPLATE TECH CYAN",
-        "preview": ""
+        "preview": "",
+        "daslightIndex": null
       },
       {
         "name": "TEMPLATE TECH GREEN",
-        "preview": ""
+        "preview": "",
+        "daslightIndex": null
       },
       {
         "name": "TEMPLATE TECH ORANGE",
-        "preview": ""
+        "preview": "",
+        "daslightIndex": null
       },
       {
         "name": "TEMPLATE TECH RED",
-        "preview": ""
+        "preview": "",
+        "daslightIndex": null
       },
       {
         "name": "TEMPLATE TECH YELLOW",
-        "preview": ""
+        "preview": "",
+        "daslightIndex": null
       }
     ]
   },
@@ -131,15 +158,18 @@
     "scenes": [
       {
         "name": "UITLIJNGRID",
-        "preview": ""
+        "preview": "",
+        "daslightIndex": null
       },
       {
         "name": "GRAYSCALE",
-        "preview": ""
+        "preview": "",
+        "daslightIndex": null
       },
       {
         "name": "PERSPECTIEF TEST",
-        "preview": ""
+        "preview": "",
+        "daslightIndex": null
       }
     ]
   }

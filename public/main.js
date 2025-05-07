@@ -246,7 +246,7 @@ function updateBackground() {
     `linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)),url(${url})no-repeat center/cover`;
 }
 function updateScenes() {
-  const cont = document.getElementById("scenesContainer");
+  const cont    = document.getElementById("scenesContainer");
   const preview = document.getElementById("previewVideo");
   cont.innerHTML = "";
 
@@ -255,6 +255,7 @@ function updateScenes() {
     btn.className = "scene-btn";
     btn.textContent = scene.name;
 
+    // Highlight the last triggered scene & handle preview
     if (idx === lastTriggeredScene) {
       btn.classList.add("scene-active");
 
@@ -267,9 +268,8 @@ function updateScenes() {
         preview.load();
         preview.play();
       } else {
-        // No preview video for this scene
         preview.removeAttribute("src");
-        preview.load(); // Resets the player
+        preview.load();
       }
     }
 
@@ -277,9 +277,27 @@ function updateScenes() {
       if (sceneCooldown) return;
 
       lastTriggeredScene = idx;
-      socket.send(JSON.stringify({ type: "selectScene", scene: idx }));
+
+      // 1) MadMapper OSC
+      socket.send(JSON.stringify({
+        type:  "selectScene",
+        scene: idx
+      }));
       logOSC(`Sent: /scene/select/${idx + 1}`, "scene");
 
+      // 2) Optional Daslight OSC (if linked)
+      if (scene.daslightIndex != null) {
+        const dlIdx = scene.daslightIndex;
+        socket.send(JSON.stringify({
+          type:  "daslightScene",
+          index: dlIdx
+        }));
+        // pull the command from your global daslightScenes array
+        const cmd = (daslightScenes[dlIdx] || {}).oscCommand || "<none>";
+        logOSC(`Sent Daslight: ${cmd}`, "scene");
+      }
+
+      // 3) Flash effect & cooldown
       btn.classList.add("flash");
       setTimeout(() => btn.classList.remove("flash"), 300);
 
@@ -396,21 +414,26 @@ function renderDaslightScenes() {
     }
 
     btn.addEventListener("click", () => {
-      socket.send(JSON.stringify({ type: "triggerDaslightScene", index }));
-      // use "scene" so it shows in the existing OSC log
-      logOSC(`Sent: ${scene.oscCommand}`, "scene");
+      // 1) send to server
+      socket.send(JSON.stringify({
+        type:  "daslightScene",  
+        index: index
+      }));
+      // 2) log it
+      logOSC(`Sent Daslight: ${scene.oscCommand}`, "daslight");
+      // 3) update local state & UI
       activeDaslightIndex = index;
       renderDaslightScenes();
-      document.getElementById("activeDaslightLabel").textContent = "Active: " + scene.name;
+      label.textContent = "Active: " + scene.name;
     });
-    
 
     container.appendChild(btn);
   });
 
-  // if nothing selected
+  // if nothing selected yet
   if (activeDaslightIndex === null) {
     label.textContent = "Active: None";
   }
 }
+
 
