@@ -6,37 +6,44 @@
       {
         "name": "MAGICAL GARDEN",
         "preview": "/videos/previewMotion1.mp4",
-        "daslightIndex": 0
+        "daslightIndex": 0,
+        "oscCommand": "/cue/select/1"
       },
       {
         "name": "KIDS TIME",
         "preview": "",
-        "daslightIndex": 7
+        "daslightIndex": 7,
+        "oscCommand": "/scene/select/1"
       },
       {
         "name": "STANDAARD",
         "preview": "",
-        "daslightIndex": 7
+        "daslightIndex": 7,
+        "oscCommand": "/scene/select/1"
       },
       {
         "name": "YOGA",
         "preview": "",
-        "daslightIndex": null
+        "daslightIndex": null,
+        "oscCommand": "/scene/select/1"
       },
       {
         "name": "PASEN",
         "preview": "",
-        "daslightIndex": null
+        "daslightIndex": null,
+        "oscCommand": "/scene/select/1"
       },
       {
         "name": "WINTER",
         "preview": "",
-        "daslightIndex": null
+        "daslightIndex": null,
+        "oscCommand": "/scene/select/1"
       },
       {
         "name": "LIGHTCITY",
         "preview": "",
-        "daslightIndex": null
+        "daslightIndex": null,
+        "oscCommand": "/scene/select/1"
       }
     ]
   },
@@ -47,27 +54,32 @@
       {
         "name": "MAGICAL GARDEN",
         "preview": "",
-        "daslightIndex": null
+        "daslightIndex": null,
+        "oscCommand": "/scene/select/1"
       },
       {
         "name": "MAGICAL GARDEN ETEN",
         "preview": "",
-        "daslightIndex": null
+        "daslightIndex": null,
+        "oscCommand": "/scene/select/1"
       },
       {
         "name": "STANDARD THEME",
         "preview": "",
-        "daslightIndex": null
+        "daslightIndex": null,
+        "oscCommand": "/scene/select/1"
       },
       {
         "name": "WINTER",
         "preview": "",
-        "daslightIndex": null
+        "daslightIndex": null,
+        "oscCommand": "/scene/select/1"
       },
       {
         "name": "PRESHOW",
         "preview": "",
-        "daslightIndex": null
+        "daslightIndex": null,
+        "oscCommand": "/scene/select/1"
       }
     ]
   },
@@ -78,77 +90,92 @@
       {
         "name": "TEMPLATE GENERIC BLUE",
         "preview": "",
-        "daslightIndex": null
+        "daslightIndex": null,
+        "oscCommand": "/scene/select/1"
       },
       {
         "name": "TEMPLATE GENERIC CYAN",
         "preview": "",
-        "daslightIndex": null
+        "daslightIndex": null,
+        "oscCommand": "/scene/select/1"
       },
       {
         "name": "TEMPLATE GENERIC GREEN",
         "preview": "",
-        "daslightIndex": null
+        "daslightIndex": null,
+        "oscCommand": "/scene/select/1"
       },
       {
         "name": "TEMPLATE GENERIC ORANGE",
         "preview": "",
-        "daslightIndex": null
+        "daslightIndex": null,
+        "oscCommand": "/scene/select/1"
       },
       {
         "name": "TEMPLATE GENERIC RED",
         "preview": "",
-        "daslightIndex": null
+        "daslightIndex": null,
+        "oscCommand": "/scene/select/1"
       },
       {
         "name": "TEMPLATE GENERIC YELLOW",
         "preview": "",
-        "daslightIndex": null
+        "daslightIndex": null,
+        "oscCommand": "/scene/select/1"
       },
       {
         "name": "TEMPLATE INDUSTRIAL",
         "preview": "",
-        "daslightIndex": null
+        "daslightIndex": null,
+        "oscCommand": "/scene/select/1"
       },
       {
         "name": "TEMPLATE LUXURY",
         "preview": "",
-        "daslightIndex": null
+        "daslightIndex": null,
+        "oscCommand": "/scene/select/1"
       },
       {
         "name": "TEMPLATE NATURE",
         "preview": "",
-        "daslightIndex": null
+        "daslightIndex": null,
+        "oscCommand": "/scene/select/1"
       },
       {
         "name": "TEMPLATE TECH BLUE",
         "preview": "",
-        "daslightIndex": null
+        "daslightIndex": null,
+        "oscCommand": "/scene/select/1"
       },
       {
         "name": "TEMPLATE TECH CYAN",
         "preview": "",
-        "daslightIndex": null
+        "daslightIndex": null,
+        "oscCommand": "/scene/select/1"
       },
       {
         "name": "TEMPLATE TECH GREEN",
         "preview": "",
-        "daslightIndex": null
+        "daslightIndex": null,
+        "oscCommand": "/scene/select/1"
       },
       {
         "name": "TEMPLATE TECH ORANGE",
         "preview": "",
-        "daslightIndex": null
+        "daslightIndex": null,
+        "oscCommand": "/scene/select/1"
       },
       {
         "name": "TEMPLATE TECH RED",
         "preview": "",
-        "daslightIndex": null
+        "daslightIndex": null,
+        "oscCommand": "/scene/select/1"
       },
       {
         "name": "TEMPLATE TECH YELLOW",
         "preview": "",
-        "daslightIndex": null
+        "daslightIndex": null,
+        "oscCommand": "/scene/select/1"
       }
     ]
   },
@@ -159,17 +186,20 @@
       {
         "name": "UITLIJNGRID",
         "preview": "",
-        "daslightIndex": null
+        "daslightIndex": null,
+        "oscCommand": "/scene/select/1"
       },
       {
         "name": "GRAYSCALE",
         "preview": "",
-        "daslightIndex": null
+        "daslightIndex": null,
+        "oscCommand": "/scene/select/1"
       },
       {
         "name": "PERSPECTIEF TEST",
         "preview": "",
-        "daslightIndex": null
+        "daslightIndex": null,
+        "oscCommand": "/scene/select/1"
       }
     ]
   }

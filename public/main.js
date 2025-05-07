@@ -278,12 +278,13 @@ function updateScenes() {
 
       lastTriggeredScene = idx;
 
-      // 1) MadMapper OSC
+      // 1) MadMapper OSC — now using the editable scene.oscCommand
       socket.send(JSON.stringify({
-        type:  "selectScene",
-        scene: idx
+        type:       "selectScene",
+        scene:      idx,
+        oscCommand: scene.oscCommand
       }));
-      logOSC(`Sent: /scene/select/${idx + 1}`, "scene");
+      logOSC(`Sent: ${scene.oscCommand}`, "scene");
 
       // 2) Optional Daslight OSC (if linked)
       if (scene.daslightIndex != null) {
@@ -292,7 +293,6 @@ function updateScenes() {
           type:  "daslightScene",
           index: dlIdx
         }));
-        // pull the command from your global daslightScenes array
         const cmd = (daslightScenes[dlIdx] || {}).oscCommand || "<none>";
         logOSC(`Sent Daslight: ${cmd}`, "scene");
       }
@@ -311,7 +311,6 @@ function updateScenes() {
     cont.appendChild(btn);
   });
 }
-
 
 // Hardware UI
 function renderHardware() {

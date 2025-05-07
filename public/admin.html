@@ -208,12 +208,22 @@ function renderBanks() {
           : "";
       });
 
-      // OSC Scene Hint
+      // OSC Scene Hint (just a reminder)
       const oscScene = document.createElement("div");
       oscScene.style.color = "#aaa";
       oscScene.style.fontSize = "0.9em";
       oscScene.style.margin = "0.3em 0 0.8em";
-      oscScene.textContent = `OSC: /scene/select/${si + 1}`;
+      oscScene.textContent = `Default: /scene/select/${si + 1}`;
+
+      // ——— NEW: Editable OSC‐Command Input ———
+      const oscIn = document.createElement("input");
+      oscIn.className   = "bg-input";
+      oscIn.placeholder = "OSC Command (e.g. /scene/select/1)";
+      // default to existing or the typical path
+      oscIn.value       = s.oscCommand || `/scene/select/${si + 1}`;
+      oscIn.addEventListener("input", () => {
+        s.oscCommand = oscIn.value.trim();
+      });
 
       // ——— Linked Daslight Scene Dropdown ———
       const linkLabel = document.createElement("div");
@@ -244,7 +254,7 @@ function renderBanks() {
         s.daslightIndex = v === "" ? null : parseInt(v, 10);
       };
 
-      // ——— Delete Scene Button ———
+      // Delete Scene Button
       const delS = document.createElement("button");
       delS.className = "danger";
       delS.textContent = "🗑 Delete Scene";
@@ -257,30 +267,31 @@ function renderBanks() {
         }, 0);
       };
 
-      // append all scene elements
+      // append all scene elements in order
       sceneList.append(
         snm,
         spr,
         oscScene,
+        oscIn,        // ← our new editable OSC field
         linkLabel,
         linkSelect,
         delS
       );
     });
 
-    // ——— Add Scene Button ———
+    // Add Scene Button
     const addS = document.createElement("button");
     addS.className = "secondary";
     addS.textContent = "➕ Add Scene";
     addS.onclick = () => {
-      b.scenes.push({ name: "New Scene", preview: "", daslightIndex: null });
+      b.scenes.push({ name: "New Scene", preview: "", daslightIndex: null, oscCommand: `/scene/select/${b.scenes.length+1}` });
       renderBanks();
       setTimeout(() => {
         document.querySelectorAll(".collapsible")[i].click();
       }, 0);
     };
 
-    // ——— Delete Bank Button ———
+    // Delete Bank Button
     const delB = document.createElement("button");
     delB.className = "danger";
     delB.textContent = "🗑 Delete Bank";
@@ -296,7 +307,6 @@ function renderBanks() {
     out.append(coll, content);
   });
 }
-
 
 function saveBanks() {
   fetch("/api/banks", {
@@ -408,7 +418,6 @@ function renderDaslightScenesAdmin() {
         const oscInput = document.createElement("input");
         oscInput.className = "bg-input";
         oscInput.value = s.oscCommand || "";
-        oscInput.placeholder = "OSC Command (e.g. /scene/1)";
         oscInput.oninput = () => s.oscCommand = oscInput.value;
 
         const delBtn = document.createElement("button");

@@ -200,10 +200,11 @@ wss.on("connection", (ws) => {
     }
 
     if (msg.type === "selectScene") {
+      const cmd = msg.oscCommand || `/scene/select/${msg.scene+1}`;
       [MADMAPPER_1, MADMAPPER_2].forEach(target => {
-        oscUDP.send({ address: `/scene/select/${msg.scene+1}`, args: [] }, target.address, target.port);
+        oscUDP.send({ address: cmd, args: [] }, target.address, target.port);
       });
-    }
+    }  
 
     if (msg.type === "playVideo") {
       [MADMAPPER_1, MADMAPPER_2].forEach(target => {
