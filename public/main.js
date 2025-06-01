@@ -255,7 +255,6 @@ function updateScenes() {
     btn.className = "scene-btn";
     btn.textContent = scene.name;
 
-    // Highlight the last triggered scene & handle preview
     if (idx === lastTriggeredScene) {
       btn.classList.add("scene-active");
 
@@ -297,7 +296,21 @@ function updateScenes() {
         logOSC(`Sent Daslight: ${cmd}`, "scene");
       }
 
-      // 3) Flash effect & cooldown
+      // 3) Optional XR16 Fade (only if all three fields are filled)
+      const inCh  = (scene.fadeInChannel  || "").trim();
+      const outCh = (scene.fadeOutChannel || "").trim();
+      const dur   = parseFloat(scene.fadeDuration);
+      if (inCh && outCh && !isNaN(dur) && dur > 0) {
+        socket.send(JSON.stringify({
+          type:     "fadeChannel",
+          fadeIn:   inCh,
+          fadeOut:  outCh,
+          duration: dur
+        }));
+        logOSC(`Sent XR16 Fade → in=${inCh}, out=${outCh}, dur=${dur}s`, "fade");
+      }
+
+      // 4) Flash effect & cooldown
       btn.classList.add("flash");
       setTimeout(() => btn.classList.remove("flash"), 300);
 
@@ -311,6 +324,7 @@ function updateScenes() {
     cont.appendChild(btn);
   });
 }
+
 
 // Hardware UI
 function renderHardware() {

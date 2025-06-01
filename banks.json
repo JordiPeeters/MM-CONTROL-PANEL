@@ -7,7 +7,10 @@
         "name": "MAGICAL GARDEN",
         "preview": "/videos/previewMotion1.mp4",
         "daslightIndex": 0,
-        "oscCommand": "/cue/select/1"
+        "oscCommand": "/cue/select/1",
+        "fadeInChannel": "",
+        "fadeOutChannel": "",
+        "fadeDuration": 0
       },
       {
         "name": "KIDS TIME",
@@ -43,7 +46,10 @@
         "name": "LIGHTCITY",
         "preview": "",
         "daslightIndex": null,
-        "oscCommand": "/scene/select/1"
+        "oscCommand": "/scene/select/1",
+        "fadeInChannel": "ch1",
+        "fadeOutChannel": "ch2",
+        "fadeDuration": 2.5
       }
     ]
   },

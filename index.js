@@ -11,6 +11,7 @@ const DASLIGHT_FILE = "daslight.json";
 const MADMAPPER_1 = { address: "192.168.3.101", port: 8000 };
 const MADMAPPER_2 = { address: "192.168.3.102", port: 8000 };
 const DASLIGHT = { address: "10.0.0.120",   port: 8080 };
+const XR16        = { address: "192.168.0.100", port: 10024 };
 // ——— Daslight OSC port ———
 const oscDaslight = new osc.UDPPort({
   localAddress:  "0.0.0.0",
@@ -27,6 +28,18 @@ oscDaslight
   .on("error", err => {
     console.error("OSC→Daslight error:", err.message);
   })
+  .open();
+
+const oscXr16 = new osc.UDPPort({
+  localAddress:  "0.0.0.0",
+  localPort:     0,
+  remoteAddress: XR16.address,
+  remotePort:    XR16.port,
+  metadata:      true
+});
+ oscXr16
+  .on("ready", () => console.log(`OSC→XR16 ready → ${XR16.address}:${XR16.port}`))
+  .on("error", err => console.error("OSC→XR16 error:", err.message))
   .open();
 
 const app = express();
@@ -291,6 +304,58 @@ if (msg.type === "daslightScene") {
 }
 
 
+if (msg.type === "fadeChannel") {
+  const inCh  = (msg.fadeIn  || "").trim();   // e.g. “ch1”
+  const outCh = (msg.fadeOut || "").trim();   // e.g. “ch2”
+  const dur   = parseFloat(msg.duration);    // seconds
+
+  // both inCh and outCh must be non‐empty, and dur must be a positive number
+  if (!inCh || !outCh || isNaN(dur) || dur <= 0) {
+    console.warn("fadeChannel: missing/invalid data:", msg);
+    return;
+  }
+
+  // extract just the numeric part of “ch1” → 1, “ch12” → 12
+  const parseChanIndex = str => {
+    const m = str.match(/\d+/);
+    return m ? parseInt(m[0], 10) : NaN;
+  };
+
+  const inIndex  = parseChanIndex(inCh);
+  const outIndex = parseChanIndex(outCh);
+  if (isNaN(inIndex) || isNaN(outIndex)) {
+    console.warn("fadeChannel: cannot parse channel index:", inCh, outCh);
+    return;
+  }
+
+  // build two OSC messages, each to /ch/XX/mix/fader_seek
+  const fadeInAddress  = `/ch/${String(inIndex).padStart(2,"0")}/mix/fader_seek`;
+  const fadeOutAddress = `/ch/${String(outIndex).padStart(2,"0")}/mix/fader_seek`;
+
+  // XR16 expects: [ float targetLevel , int fadeTimeMs ]
+  // convert dur (in seconds) to milliseconds:
+  const fadeTimeMs = Math.round(dur * 1000);
+
+  oscXr16.send({
+    address: fadeInAddress,
+    args: [
+      { type:"f", value: 1.0 },       // fade channel in to full (1.0)
+      { type:"i", value: fadeTimeMs } // over fadeTimeMs
+    ]
+  });
+  oscXr16.send({
+    address: fadeOutAddress,
+    args: [
+      { type:"f", value: 0.0 },       // fade channel out to zero (0.0)
+      { type:"i", value: fadeTimeMs }
+    ]
+  });
+
+  console.log(
+    `XR16 Fade → ${fadeInAddress} → (1.0 over ${fadeTimeMs}ms)`,
+    `and ${fadeOutAddress} → (0.0 over ${fadeTimeMs}ms)`
+  );
+}
     
     
   });

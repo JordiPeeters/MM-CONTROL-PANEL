@@ -161,13 +161,15 @@ function renderBanks() {
     nm.className = "inline-input";
     nm.value = b.name;
     nm.placeholder = "Bank Name";
-    nm.addEventListener("input", () => b.name = nm.value);
+    nm.addEventListener("input", () => {
+      b.name = nm.value;
+    });
 
     // ——— Background Input ———
     const bg = document.createElement("input");
     bg.className = "bg-input";
     bg.placeholder = "Background filename";
-    bg.value = b.background.replace(/^\/images\//, "");
+    bg.value = (b.background || "").replace(/^\/images\//, "");
     bg.addEventListener("input", () => {
       const v = bg.value.trim();
       b.background = v
@@ -187,19 +189,21 @@ function renderBanks() {
     sceneList.id = `scene-list-${i}`;
     sceneList.style.marginTop = "1.5em";
 
-    // ——— Render Scenes ———
+    // ——— Render each scene inside this bank ———
     b.scenes.forEach((s, si) => {
       // Scene Name
       const snm = document.createElement("input");
       snm.className = "inline-input";
       snm.value = s.name;
       snm.placeholder = "Scene Name";
-      snm.addEventListener("input", () => s.name = snm.value);
+      snm.addEventListener("input", () => {
+        s.name = snm.value;
+      });
 
       // Preview Video
       const spr = document.createElement("input");
       spr.className = "bg-input";
-      spr.value = s.preview?.replace(/^\/videos\//, "") || "";
+      spr.value = (s.preview || "").replace(/^\/videos\//, "");
       spr.placeholder = "Preview Video (optional)";
       spr.addEventListener("input", () => {
         const v = spr.value.trim();
@@ -215,46 +219,78 @@ function renderBanks() {
       oscScene.style.margin = "0.3em 0 0.8em";
       oscScene.textContent = `Default: /scene/select/${si + 1}`;
 
-      // ——— NEW: Editable OSC‐Command Input ———
+      // ——— Editable OSC‐Command Input ———
       const oscIn = document.createElement("input");
-      oscIn.className   = "bg-input";
+      oscIn.className = "bg-input";
       oscIn.placeholder = "OSC Command (e.g. /scene/select/1)";
-      // default to existing or the typical path
-      oscIn.value       = s.oscCommand || `/scene/select/${si + 1}`;
+      oscIn.value = s.oscCommand || `/scene/select/${si + 1}`;
       oscIn.addEventListener("input", () => {
         s.oscCommand = oscIn.value.trim();
+      });
+
+      // ——— Fade In Channel Input ———
+      const fadeInLabel = document.createElement("div");
+      fadeInLabel.style = "margin-top:0.8em; color:#ddd; font-size:0.9em";
+      fadeInLabel.textContent = "Fade‐In Channel:";
+      const fadeInInput = document.createElement("input");
+      fadeInInput.className = "bg-input";
+      fadeInInput.placeholder = "e.g. ch1";
+      fadeInInput.value = s.fadeInChannel || "";
+      fadeInInput.addEventListener("input", () => {
+        s.fadeInChannel = fadeInInput.value.trim();
+      });
+
+      // ——— Fade Out Channel Input ———
+      const fadeOutLabel = document.createElement("div");
+      fadeOutLabel.style = "margin-top:0.5em; color:#ddd; font-size:0.9em";
+      fadeOutLabel.textContent = "Fade‐Out Channel:";
+      const fadeOutInput = document.createElement("input");
+      fadeOutInput.className = "bg-input";
+      fadeOutInput.placeholder = "e.g. ch2";
+      fadeOutInput.value = s.fadeOutChannel || "";
+      fadeOutInput.addEventListener("input", () => {
+        s.fadeOutChannel = fadeOutInput.value.trim();
+      });
+
+      // ——— Fade Duration Input ———
+      const fadeDurLabel = document.createElement("div");
+      fadeDurLabel.style = "margin-top:0.5em; color:#ddd; font-size:0.9em";
+      fadeDurLabel.textContent = "Fade Duration (s):";
+      const fadeDurInput = document.createElement("input");
+      fadeDurInput.type = "number";
+      fadeDurInput.min = "0";
+      fadeDurInput.step = "0.1";
+      fadeDurInput.className = "bg-input";
+      fadeDurInput.placeholder = "e.g. 2.5";
+      fadeDurInput.value = s.fadeDuration != null ? s.fadeDuration : "";
+      fadeDurInput.addEventListener("input", () => {
+        s.fadeDuration = parseFloat(fadeDurInput.value) || 0;
       });
 
       // ——— Linked Daslight Scene Dropdown ———
       const linkLabel = document.createElement("div");
       linkLabel.style = "margin:0.5em 0; color:#ddd; font-size:0.9em";
       linkLabel.textContent = "Linked Daslight Scene:";
-
       const linkSelect = document.createElement("select");
       linkSelect.className = "bg-input";
       linkSelect.style.marginBottom = "1em";
-
       // “None” option
       const noneOpt = new Option("— None —", "");
       linkSelect.add(noneOpt);
-
       // populate from global daslightScenes[]
       daslightScenes.forEach((dls, dli) => {
         const opt = new Option(dls.name, dli);
         linkSelect.add(opt);
       });
-
-      // set current value
-      if (s.daslightIndex != null) {
+      if (typeof s.daslightIndex === "number") {
         linkSelect.value = s.daslightIndex;
       }
-
       linkSelect.onchange = () => {
         const v = linkSelect.value;
         s.daslightIndex = v === "" ? null : parseInt(v, 10);
       };
 
-      // Delete Scene Button
+      // ——— Delete Scene Button ———
       const delS = document.createElement("button");
       delS.className = "danger";
       delS.textContent = "🗑 Delete Scene";
@@ -263,7 +299,8 @@ function renderBanks() {
         b.scenes.splice(si, 1);
         renderBanks();
         setTimeout(() => {
-          document.querySelectorAll(".collapsible")[i].click();
+          const allColl = document.querySelectorAll(".collapsible");
+          if (allColl[i]) allColl[i].click();
         }, 0);
       };
 
@@ -272,26 +309,41 @@ function renderBanks() {
         snm,
         spr,
         oscScene,
-        oscIn,        // ← our new editable OSC field
+        oscIn,         // editable OSC
+        fadeInLabel,
+        fadeInInput,   // fade‐in channel
+        fadeOutLabel,
+        fadeOutInput,  // fade‐out channel
+        fadeDurLabel,
+        fadeDurInput,  // fade duration
         linkLabel,
         linkSelect,
         delS
       );
     });
 
-    // Add Scene Button
+    // ——— Add Scene Button ———
     const addS = document.createElement("button");
     addS.className = "secondary";
     addS.textContent = "➕ Add Scene";
     addS.onclick = () => {
-      b.scenes.push({ name: "New Scene", preview: "", daslightIndex: null, oscCommand: `/scene/select/${b.scenes.length+1}` });
+      b.scenes.push({
+        name:            "New Scene",
+        preview:         "",
+        daslightIndex:   null,
+        oscCommand:      `/scene/select/${b.scenes.length + 1}`,
+        fadeInChannel:   "",
+        fadeOutChannel:  "",
+        fadeDuration:    ""
+      });
       renderBanks();
       setTimeout(() => {
-        document.querySelectorAll(".collapsible")[i].click();
+        const allColl = document.querySelectorAll(".collapsible");
+        if (allColl[i]) allColl[i].click();
       }, 0);
     };
 
-    // Delete Bank Button
+    // ——— Delete Bank Button ———
     const delB = document.createElement("button");
     delB.className = "danger";
     delB.textContent = "🗑 Delete Bank";
@@ -307,6 +359,8 @@ function renderBanks() {
     out.append(coll, content);
   });
 }
+
+
 
 function saveBanks() {
   fetch("/api/banks", {
