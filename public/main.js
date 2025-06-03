@@ -255,6 +255,7 @@ function updateScenes() {
     btn.className = "scene-btn";
     btn.textContent = scene.name;
 
+    // Highlight the last triggered scene & handle preview
     if (idx === lastTriggeredScene) {
       btn.classList.add("scene-active");
 
@@ -277,7 +278,7 @@ function updateScenes() {
 
       lastTriggeredScene = idx;
 
-      // 1) MadMapper OSC — now using the editable scene.oscCommand
+      // 1) MadMapper OSC — use editable scene.oscCommand
       socket.send(JSON.stringify({
         type:       "selectScene",
         scene:      idx,
@@ -296,18 +297,30 @@ function updateScenes() {
         logOSC(`Sent Daslight: ${cmd}`, "scene");
       }
 
-      // 3) Optional XR16 Fade (only if all three fields are filled)
-      const inCh  = (scene.fadeInChannel  || "").trim();
-      const outCh = (scene.fadeOutChannel || "").trim();
-      const dur   = parseFloat(scene.fadeDuration);
-      if (inCh && outCh && !isNaN(dur) && dur > 0) {
-        socket.send(JSON.stringify({
-          type:     "fadeChannel",
-          fadeIn:   inCh,
-          fadeOut:  outCh,
-          duration: dur
-        }));
-        logOSC(`Sent XR16 Fade → in=${inCh}, out=${outCh}, dur=${dur}s`, "fade");
+      // 3) Optional XR16 Fade over multiple channels
+      const dur = parseFloat(scene.fadeDuration);
+      if (!isNaN(dur) && dur > 0) {
+        // parse comma-separated lists, e.g. "01,02,05"
+        const inList  = (scene.fadeInChannels  || "")
+                         .split(",")
+                         .map(s => s.trim())
+                         .filter(s => s);
+        const outList = (scene.fadeOutChannels || "")
+                         .split(",")
+                         .map(s => s.trim())
+                         .filter(s => s);
+        if (inList.length || outList.length) {
+          socket.send(JSON.stringify({
+            type:            "fadeChannel",
+            fadeInChannels:  inList,
+            fadeOutChannels: outList,
+            duration:        dur
+          }));
+          logOSC(
+            `Sent XR16 Fade → in=[${inList.join(",")}], out=[${outList.join(",")}], dur=${dur}s`,
+            "fade"
+          );
+        }
       }
 
       // 4) Flash effect & cooldown
